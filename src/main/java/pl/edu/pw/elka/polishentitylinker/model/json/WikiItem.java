@@ -3,12 +3,9 @@ package pl.edu.pw.elka.polishentitylinker.model.json;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 @Data
@@ -31,16 +28,5 @@ public class WikiItem {
         this.titlePl = wikiTitle.getPl();
         this.instanceOf = instanceOf;
         this.subclassOf = subclassOf;
-    }
-
-    public static void main(String[] args) {
-
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            WikiItem wikiItem = mapper.readValue(new File("C:\\Users\\Łukasz\\Desktop\\programowanie\\polish-entity-linker\\src\\main\\resources\\ezample.json"), WikiItem.class);
-            System.out.println(wikiItem.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
