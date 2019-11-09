@@ -1,6 +1,6 @@
 package pl.edu.pw.elka.polishentitylinker.service;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -15,14 +15,15 @@ import java.util.stream.Collectors;
 
 @Log4j2
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class WikiItemServiceImpl implements WikiItemService {
 
-    private WikiItemRepository wikiItemRepository;
+    private final WikiItemRepository wikiItemRepository;
+
+    private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public WikiItem add(WikiItem wikiItem) {
-        ModelMapper modelMapper = new ModelMapper();
         WikiItemEntity entity = modelMapper.map(wikiItem, WikiItemEntity.class);
         List<WikiItemEntity> subclassOfList = Optional.ofNullable(wikiItem.getSubclassOf()).orElseGet(Collections::emptyList).stream()
                 .map(id -> findById(id).orElseGet(() -> {
@@ -46,6 +47,12 @@ public class WikiItemServiceImpl implements WikiItemService {
 
         log.info("Entity with id {} saved", savedEntity.getId());
         return modelMapper.map(savedEntity, WikiItem.class);
+    }
+
+    @Override
+    public WikiItem findByTitle(String title) {
+        WikiItemEntity wikiItemEntity = wikiItemRepository.findByTitlePl(title);
+        return wikiItemEntity == null ? null : modelMapper.map(wikiItemEntity, WikiItem.class);
     }
 
     private Optional<WikiItemEntity> findById(String id) {

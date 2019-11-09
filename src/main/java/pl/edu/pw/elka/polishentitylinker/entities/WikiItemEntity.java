@@ -2,6 +2,7 @@ package pl.edu.pw.elka.polishentitylinker.entities;
 
 import lombok.Getter;
 import lombok.Setter;
+import pl.edu.pw.elka.polishentitylinker.model.csv.PageType;
 
 import javax.persistence.*;
 import java.util.List;
@@ -29,4 +30,10 @@ public class WikiItemEntity {
 
     @ManyToMany(cascade = CascadeType.PERSIST)
     private List<WikiItemEntity> rootParentCategories;
+
+    @Column(unique=true)
+    private Integer pageId;
+
+    @Enumerated
+    private PageType pageType;
 }

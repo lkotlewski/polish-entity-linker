@@ -14,9 +14,5 @@ public interface WikiItemRepository extends CrudRepository<WikiItemEntity, Strin
             nativeQuery = true)
     List<WikiItemEntity> findAllByLemma(@Param("lemma") String lemma);
 
-    List<WikiItemEntity> findAllByLabelPlContaining(String lemma);
-
-    List<WikiItemEntity> findAllByLabelEngContaining(String lemma);
-
-    List<WikiItemEntity> findAllByTitlePlContaining(String lemma);
+    WikiItemEntity findByTitlePl(String titlePl);
 }
