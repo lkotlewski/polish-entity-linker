@@ -3,8 +3,10 @@ package pl.edu.pw.elka.polishentitylinker.flow;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import pl.edu.pw.elka.polishentitylinker.imports.PageParser;
-import pl.edu.pw.elka.polishentitylinker.imports.WikiItemParser;
+import pl.edu.pw.elka.polishentitylinker.core.EntityLinker;
+import pl.edu.pw.elka.polishentitylinker.imports.PageProcessor;
+import pl.edu.pw.elka.polishentitylinker.imports.RedirectPageProcessor;
+import pl.edu.pw.elka.polishentitylinker.imports.WikiItemProcessor;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -14,8 +16,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ProgramRunner {
 
-    private final WikiItemParser wikiItemParser;
-    private final PageParser pageParser;
+    private final WikiItemProcessor wikiItemParser;
+    private final PageProcessor pageParser;
+    private final RedirectPageProcessor redirectPageProcessor;
+    private final EntityLinker entityLinker;
 
     private Map<ProgramOption, Runnable> actions;
 
@@ -27,6 +31,8 @@ public class ProgramRunner {
         actions = new HashMap<>();
         actions.put(ProgramOption.IMPORT_WIKI_ITEMS, wikiItemParser::parseFile);
         actions.put(ProgramOption.IMPORT_PAGES, pageParser::parseFile);
+        actions.put(ProgramOption.IMPORT_REDIRECTS, redirectPageProcessor::parseFile);
+        actions.put(ProgramOption.LINK_ENTITIES, entityLinker::linkEntities);
     }
 
     public void run() {
