@@ -9,8 +9,8 @@ import java.util.List;
 
 public interface WikiItemRepository extends CrudRepository<WikiItemEntity, String> {
 
-    @Query(value = "SELECT * FROM wiki_item WHERE label_pl LIKE CONCAT('%',?1,'%') OR label_eng LIKE CONCAT('%',?1,'%')" +
-            " OR title_pl LIKE CONCAT('%',?1,'%')",
+    @Query(value = "SELECT * FROM wiki_item WHERE LOWER(label_pl) LIKE LOWER(CONCAT('%',?1,'%'))" +
+            " OR LOWER(title_pl) LIKE LOWER(CONCAT('%',?1,'%'))",
             nativeQuery = true)
     List<WikiItemEntity> findAllByLemma(@Param("lemma") String lemma);
 
