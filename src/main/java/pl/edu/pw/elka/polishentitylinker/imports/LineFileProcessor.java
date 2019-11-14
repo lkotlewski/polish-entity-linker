@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 import java.util.function.Consumer;
 
 @Slf4j
-public abstract class LineFileParser {
+public abstract class LineFileProcessor {
 
      void parseFile(String path, Consumer<String> action) {
         Path path1 = Paths.get(path);

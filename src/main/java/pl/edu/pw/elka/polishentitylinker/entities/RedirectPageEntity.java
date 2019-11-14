@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 
 @Getter
@@ -20,4 +21,7 @@ public class RedirectPageEntity {
     private int id;
 
     private String label;
+
+    @ManyToOne
+    private WikiItemEntity target;
 }

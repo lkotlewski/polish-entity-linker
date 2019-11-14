@@ -1,4 +1,4 @@
-package pl.edu.pw.elka.polishentitylinker.imports;
+package pl.edu.pw.elka.polishentitylinker.imports.config;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,5 +13,6 @@ public class ItemsParserConfig {
 
     private String wikiItemsFilepath;
     private String pagesFilepath;
+    private String redirectFilepath;
     private int saveBatchSize;
 }

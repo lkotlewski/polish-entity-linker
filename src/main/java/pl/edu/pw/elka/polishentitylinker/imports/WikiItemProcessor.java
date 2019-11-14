@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import pl.edu.pw.elka.polishentitylinker.imports.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.model.json.WikiItem;
 import pl.edu.pw.elka.polishentitylinker.service.WikiItemService;
 
@@ -12,7 +13,7 @@ import java.io.IOException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class WikiItemParser extends LineFileParser {
+public class WikiItemProcessor extends LineFileProcessor {
 
     private final WikiItemService wikiItemService;
     private final ItemsParserConfig itemsParserConfig;
