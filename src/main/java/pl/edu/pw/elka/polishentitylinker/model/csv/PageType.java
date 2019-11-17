@@ -8,7 +8,8 @@ public enum PageType {
     CATEGORY(1),
     REDIRECT(2),
     DISAMBIGUATION(3),
-    TEMPLATE(4);
+    TEMPLATE(4),
+    OTHER(5);
 
     private final int value;
 
