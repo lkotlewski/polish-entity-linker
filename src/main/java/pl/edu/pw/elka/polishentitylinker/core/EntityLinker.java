@@ -7,6 +7,8 @@ import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.service.Disambiguator;
 import pl.edu.pw.elka.polishentitylinker.service.Searcher;
 
+import java.io.IOException;
+import java.nio.file.*;
 import java.util.List;
 
 @Slf4j
@@ -24,20 +26,25 @@ public class EntityLinker {
     private final TaggedTextIterator taggedTextIterator = new TaggedTextIterator();
 
     public void linkEntities() {
+        Path path = Paths.get(config.getOutFilepath());
         taggedTextIterator.processFile(config.getTestFilepath());
-        taggedTextIterator.getNamedEntities()
-                .forEach(namedEntity -> {
-                    List<WikiItemEntity> candidates = searcher.findCandidates(namedEntity);
-                    WikiItemEntity choice = disambiguator.choose(namedEntity, candidates);
-                    if(choice != null) {
-                        System.out.println(String.format(LOG_PATTERN, namedEntity.getEntitySpan().get(0).getEntityId(), choice.getId(), choice.getLabelPl(), choice.getTitlePl()));
-                    } else {
-                        System.out.println(String.format(LOG_NO_CANDIDATE_PATTERN, namedEntity.getEntitySpan().get(0).getEntityId()));
-                    }
-                });
+        taggedTextIterator.getNamedEntities().forEach(namedEntity -> {
+            List<WikiItemEntity> candidates = searcher.findCandidates(namedEntity);
+            WikiItemEntity choice = disambiguator.choose(namedEntity, candidates);
+            String choiceLog;
+            if (choice != null) {
+                choiceLog = String.format(LOG_PATTERN, namedEntity.getEntitySpan().get(0).getEntityId(), choice.getId(), choice.getLabelPl(), choice.getTitlePl());
+            } else {
+                choiceLog = String.format(LOG_NO_CANDIDATE_PATTERN, namedEntity.getEntitySpan().get(0).getEntityId());
+            }
+            log.info(choiceLog);
+            try {
+                Files.write(path, (choiceLog + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            } catch (IOException e) {
+                log.error("", e);
+            }
+        });
     }
-
-
 
 
 }

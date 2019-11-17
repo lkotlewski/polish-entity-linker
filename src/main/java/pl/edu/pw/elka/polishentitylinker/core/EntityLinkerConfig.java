@@ -13,4 +13,5 @@ import org.springframework.context.annotation.Configuration;
 public class EntityLinkerConfig {
 
     private String testFilepath;
+    private String outFilepath;
 }
