@@ -12,15 +12,15 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class NaiveSearcher implements Searcher {
+public class ExactMatchSearcher implements Searcher {
 
     private final WikiItemRepository wikiItemRepository;
 
     @Override
     public List<WikiItemEntity> findCandidates(NamedEntity namedEntity) {
         String lemma = namedEntity.getEntitySpan().get(0).getLemma();
-        List<WikiItemEntity> candidates = wikiItemRepository.findAllSimilarToLemmaFromRedirects(lemma);
-        candidates.addAll(wikiItemRepository.findAllSimilarToLemma(lemma));
+        List<WikiItemEntity> candidates = wikiItemRepository.findAllByLemmaFromRedirects(lemma);
+        candidates.addAll(wikiItemRepository.findAllByLemma(lemma));
         return CandidateSearchUtils.getDistinctRegularArticles(candidates);
     }
 }

@@ -20,7 +20,7 @@ public class NaiveDisambiguatorImpl implements Disambiguator {
         return candidates
                 .stream()
                 .reduce((a, b) -> getRedirectCount(a) > getRedirectCount(b) ? a : b)
-                .orElseGet(null);
+                .orElse(null);
     }
 
     private int getRedirectCount(WikiItemEntity a) {
