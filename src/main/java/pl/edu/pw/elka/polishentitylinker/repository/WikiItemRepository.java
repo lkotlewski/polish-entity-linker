@@ -28,4 +28,8 @@ public interface WikiItemRepository extends CrudRepository<WikiItemEntity, Strin
     @Query(value = "select * from wiki_item where id in (select distinct target_id from redirect_page where LOWER(label) =  LOWER(?1))",
             nativeQuery = true)
     List<WikiItemEntity> findAllByLemmaFromRedirects(@Param("lemma") String lemma);
+
+    @Query(value = "select * from wiki_item where id in (select distinct target_id from alias where label = ?1)",
+            nativeQuery = true)
+    List<WikiItemEntity> findAllByOriginalFormFromAliases(@Param("originalForm") String originalForm);
 }

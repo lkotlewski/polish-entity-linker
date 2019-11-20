@@ -19,7 +19,7 @@ public class NaiveDisambiguatorImpl implements Disambiguator {
     public WikiItemEntity choose(NamedEntity namedEntity, List<WikiItemEntity> candidates) {
         return candidates
                 .stream()
-                .reduce((a, b) -> getRedirectCount(a) > getRedirectCount(b) ? a : b)
+                .reduce((a, b) -> a.getMentionsCount() > b.getMentionsCount() ? a : b)
                 .orElse(null);
     }
 

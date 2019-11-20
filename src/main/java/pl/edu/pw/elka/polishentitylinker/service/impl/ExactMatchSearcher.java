@@ -20,6 +20,7 @@ public class ExactMatchSearcher implements Searcher {
     public List<WikiItemEntity> findCandidates(NamedEntity namedEntity) {
         String lemma = namedEntity.getEntitySpan().get(0).getLemma();
         List<WikiItemEntity> candidates = wikiItemRepository.findAllByLemmaFromRedirects(lemma);
+        candidates.addAll(wikiItemRepository.findAllByOriginalFormFromAliases(namedEntity.toOriginalForm()));
         candidates.addAll(wikiItemRepository.findAllByLemma(lemma));
         return CandidateSearchUtils.getDistinctRegularArticles(candidates);
     }
