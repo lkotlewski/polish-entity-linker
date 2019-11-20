@@ -4,5 +4,6 @@ public enum ProgramOption {
     IMPORT_WIKI_ITEMS,
     IMPORT_PAGES,
     IMPORT_REDIRECTS,
-    LINK_ENTITIES
+    LINK_ENTITIES,
+    COUNT_MENTIONS
 }

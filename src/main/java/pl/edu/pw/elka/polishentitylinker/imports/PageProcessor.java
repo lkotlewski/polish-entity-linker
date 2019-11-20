@@ -25,12 +25,13 @@ public class PageProcessor extends LineFileProcessor {
     @Override
     public void parseFile() {
         wikiItemSaver = new BufferedBatchProcessor<>(wikiItemRepository::saveAll, itemsParserConfig.getSaveBatchSize());
-        parseFile(itemsParserConfig.getPagesFilepath(), this::readPagesFileLine);
+        parseFile(itemsParserConfig.getPagesFilepath());
         wikiItemSaver.processRest();
         pagesImportSummary.printSummary();
     }
 
-    private void readPagesFileLine(String line) {
+    @Override
+    void processLine(String line) {
         Page page = new Page(line);
         log.info(String.valueOf(page.getPageId()));
 

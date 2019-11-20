@@ -14,5 +14,6 @@ public class ItemsParserConfig {
     private String wikiItemsFilepath;
     private String pagesFilepath;
     private String redirectFilepath;
+    private String tokensWithEntitiesFilepath;
     private int saveBatchSize;
 }

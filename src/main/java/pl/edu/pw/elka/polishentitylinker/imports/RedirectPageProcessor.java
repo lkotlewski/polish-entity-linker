@@ -25,11 +25,12 @@ public class RedirectPageProcessor extends LineFileProcessor {
     @Override
     public void parseFile() {
         redirectPageUpdater = new BufferedBatchProcessor<>(redirectPageRepository::saveAll, itemsParserConfig.getSaveBatchSize());
-        parseFile(itemsParserConfig.getRedirectFilepath(), this::readRedirectPageLine);
+        parseFile(itemsParserConfig.getRedirectFilepath());
         redirectPageUpdater.processRest();
     }
 
-    private void readRedirectPageLine(String line) {
+    @Override
+    void processLine(String line) {
         RedirectPage redirectPage = new RedirectPage(line);
         log.info(String.valueOf(redirectPage.getPageId()));
         WikiItemEntity wikiItemEntity = wikiItemRepository.findByTitlePl(redirectPage.getTargetTitle());

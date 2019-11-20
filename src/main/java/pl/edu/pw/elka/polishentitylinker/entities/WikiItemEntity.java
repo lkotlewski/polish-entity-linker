@@ -36,4 +36,6 @@ public class WikiItemEntity {
 
     @Enumerated
     private PageType pageType;
+
+    private Integer mentionsCount;
 }

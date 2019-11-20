@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import pl.edu.pw.elka.polishentitylinker.core.EntityLinker;
 import pl.edu.pw.elka.polishentitylinker.imports.PageProcessor;
 import pl.edu.pw.elka.polishentitylinker.imports.RedirectPageProcessor;
+import pl.edu.pw.elka.polishentitylinker.imports.TokensWithEntitiesProcessor;
 import pl.edu.pw.elka.polishentitylinker.imports.WikiItemProcessor;
 
 import javax.annotation.PostConstruct;
@@ -20,6 +21,7 @@ public class ProgramRunner {
     private final PageProcessor pageParser;
     private final RedirectPageProcessor redirectPageProcessor;
     private final EntityLinker entityLinker;
+    private final TokensWithEntitiesProcessor tokensWithEntitiesProcessor;
 
     private Map<ProgramOption, Runnable> actions;
 
@@ -33,6 +35,7 @@ public class ProgramRunner {
         actions.put(ProgramOption.IMPORT_PAGES, pageParser::parseFile);
         actions.put(ProgramOption.IMPORT_REDIRECTS, redirectPageProcessor::parseFile);
         actions.put(ProgramOption.LINK_ENTITIES, entityLinker::linkEntities);
+        actions.put(ProgramOption.COUNT_MENTIONS, tokensWithEntitiesProcessor::parseFile);
     }
 
     public void run() {

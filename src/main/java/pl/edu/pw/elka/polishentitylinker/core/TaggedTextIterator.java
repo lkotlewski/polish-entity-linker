@@ -2,14 +2,14 @@ package pl.edu.pw.elka.polishentitylinker.core;
 
 import lombok.Getter;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
-import pl.edu.pw.elka.polishentitylinker.model.TaggedWord;
+import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedExtendedWord;
+import pl.edu.pw.elka.polishentitylinker.utils.TsvLineParser;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -19,7 +19,7 @@ public class TaggedTextIterator {
 
     private static final String NO_NAMED_ENTITY_MARK = "_";
 
-    private List<TaggedWord> loaded;
+    private List<TokenizedExtendedWord> loaded;
     private List<NamedEntity> namedEntities;
 
     public void processFile(String path) {
@@ -33,20 +33,8 @@ public class TaggedTextIterator {
         }
     }
 
-    private TaggedWord parseLine(String line) {
-        List<String> parts = Arrays.asList(line.split("\\s"));
-        if (parts.size() == 7) {
-            return TaggedWord.builder()
-                    .docId(Integer.parseInt(parts.get(0)))
-                    .token(parts.get(1))
-                    .lemma(parts.get(2))
-                    .precedingSpace("1".equals(parts.get(3)))
-                    .morphosyntacticTags(parts.get(4))
-                    .linkTitle(parts.get(5))
-                    .entityId(parts.get(6))
-                    .build();
-        }
-        return null;
+    private TokenizedExtendedWord parseLine(String line) {
+       return TsvLineParser.parseTokenizedExtendedWord(line);
     }
 
     private void processLoaded() {
@@ -57,17 +45,17 @@ public class TaggedTextIterator {
                 .collect(Collectors.toList());
 
         if (!namedEntitiesIdxs.isEmpty()) {
-            List<TaggedWord> buffer = new ArrayList<>();
+            List<TokenizedExtendedWord> buffer = new ArrayList<>();
             String lastId = loaded.get(namedEntitiesIdxs.get(0)).getEntityId();
 
             for (Integer idx : namedEntitiesIdxs) {
-                TaggedWord taggedWord = loaded.get(idx);
-                if (taggedWord.getEntityId().equals(lastId)) {
-                    buffer.add(taggedWord);
+                TokenizedExtendedWord tokenizedExtendedWord = loaded.get(idx);
+                if (tokenizedExtendedWord.getEntityId().equals(lastId)) {
+                    buffer.add(tokenizedExtendedWord);
                 } else {
                     addFromBuffer(buffer);
-                    buffer.add(taggedWord);
-                    lastId = taggedWord.getEntityId();
+                    buffer.add(tokenizedExtendedWord);
+                    lastId = tokenizedExtendedWord.getEntityId();
                 }
             }
             addFromBuffer(buffer);
@@ -75,16 +63,16 @@ public class TaggedTextIterator {
 
     }
 
-    private void addFromBuffer(List<TaggedWord> buffer) {
+    private void addFromBuffer(List<TokenizedExtendedWord> buffer) {
         NamedEntity namedEntity = new NamedEntity();
-        List<TaggedWord> entitySpan = new ArrayList<>(buffer);
+        List<TokenizedExtendedWord> entitySpan = new ArrayList<>(buffer);
         namedEntity.setEntitySpan(entitySpan);
         namedEntities.add(namedEntity);
         buffer.clear();
     }
 
-    private boolean isNamedEntity(TaggedWord taggedWord) {
-        return taggedWord != null && !NO_NAMED_ENTITY_MARK.equals(taggedWord.getEntityId());
+    private boolean isNamedEntity(TokenizedExtendedWord tokenizedExtendedWord) {
+        return tokenizedExtendedWord != null && !NO_NAMED_ENTITY_MARK.equals(tokenizedExtendedWord.getEntityId());
     }
 
 

@@ -20,10 +20,11 @@ public class WikiItemProcessor extends LineFileProcessor {
 
     @Override
     public void parseFile() {
-        parseFile(itemsParserConfig.getWikiItemsFilepath(), this::readEntitiesFileLine);
+        parseFile(itemsParserConfig.getWikiItemsFilepath());
     }
 
-    private void readEntitiesFileLine(String line) {
+    @Override
+    void processLine(String line) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             WikiItem wikiItem = objectMapper.readValue(line, WikiItem.class);
