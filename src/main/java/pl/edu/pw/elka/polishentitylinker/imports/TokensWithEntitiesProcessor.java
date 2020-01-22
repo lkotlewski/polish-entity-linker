@@ -45,57 +45,60 @@ public class TokensWithEntitiesProcessor extends LineFileProcessor {
         TokenizedWord tokenizedWord = TsvLineParser.parseTokenizedWord(line);
         if (tokenizedWord != null) {
             String entityId = tokenizedWord.getEntityId();
+            if (isNamedEntity(lastEntityId) && !isContinuation(entityId)) {
+                handleEntitySpanEnd();
+            }
             if (isNamedEntity(entityId)) {
                 if (isContinuation(entityId)) {
-                    if (tokenizedWord.isPrecedingSpace()) {
-                        stringBuilder.append(" ");
-                    }
-                    stringBuilder.append(tokenizedWord.getToken());
-                } else {
-                    stringBuilder.append(tokenizedWord.getToken());
-                    incrementMentionsCount(entityId);
+                    appendSpaceIfPreceded(tokenizedWord);
                 }
-            } else {
-                if (stringBuilder.length() != 0) {
-                    addAlias(lastEntityId, stringBuilder.toString());
-                    stringBuilder.setLength(0);
-                }
+                stringBuilder.append(tokenizedWord.getToken());
             }
             lastEntityId = entityId;
         }
     }
 
-    private void incrementMentionsCount(String entityId) {
-        if (entitiesMentions.containsKey(entityId)) {
-            entitiesMentions.put(entityId, entitiesMentions.get(entityId) + 1);
-            log.info(entityId);
-        } else {
-            entitiesMentions.put(entityId, 1);
-            log.info(entityId);
-        }
-    }
-
-    private void addAlias(String entityId, String alias) {
-        if (entitiesAliases.containsKey(entityId)) {
-            Set<String> aliases = entitiesAliases.get(entityId);
-            aliases.add(alias);
-            log.info(entityId);
-        } else {
-            Set<String> aliases = new HashSet<>();
-            aliases.add(alias);
-            entitiesAliases.put(entityId, aliases);
-            log.info(entityId);
-        }
-    }
-
-
     private boolean isNamedEntity(String entityId) {
-        return !"_".equals(entityId);
+        return entityId != null && !"_".equals(entityId);
     }
 
     private boolean isContinuation(String entityId) {
         return entityId.equals(lastEntityId);
     }
+
+    private void handleEntitySpanEnd() {
+        incrementMentionsCount(lastEntityId);
+        addAlias(lastEntityId, stringBuilder.toString());
+        stringBuilder.setLength(0);
+    }
+
+    private void incrementMentionsCount(String entityId) {
+        if (entitiesMentions.containsKey(entityId)) {
+            entitiesMentions.put(entityId, entitiesMentions.get(entityId) + 1);
+        } else {
+            entitiesMentions.put(entityId, 1);
+        }
+        log.info("{} mentions count incremented", entityId);
+    }
+
+    private void appendSpaceIfPreceded(TokenizedWord tokenizedWord) {
+        if (tokenizedWord.isPrecedingSpace()) {
+            stringBuilder.append(" ");
+        }
+    }
+
+    private void addAlias(String entityId, String alias) {
+        Set<String> aliases;
+        if (entitiesAliases.containsKey(entityId)) {
+            aliases = entitiesAliases.get(entityId);
+        } else {
+            aliases = new HashSet<>();
+        }
+        aliases.add(alias);
+        entitiesAliases.put(entityId, aliases);
+        log.info("{} alias added", entityId);
+    }
+
 
     private void saveCountResults() {
         log.info("saving counts");
@@ -110,17 +113,15 @@ public class TokensWithEntitiesProcessor extends LineFileProcessor {
     private void saveAliases() {
         log.info("saving aliases");
         log.info(String.valueOf(entitiesMentions.size()));
-        entitiesAliases.forEach((k, aliases) -> wikiItemRepository.findById(k).ifPresent(wikiItemEntity -> {
-
-            aliases.forEach(alias -> {
-                if (PageType.REGULAR_ARTICLE.equals(wikiItemEntity.getPageType()) && alias.length() < 255) {
-                    AliasEntity aliasEntity = new AliasEntity();
-                    aliasEntity.setLabel(alias);
-                    aliasEntity.setTarget(wikiItemEntity);
-                    aliasesSaver.process(aliasEntity);
-                }
-            });
-        }));
+        entitiesAliases.forEach((k, aliases) -> wikiItemRepository.findById(k).ifPresent(wikiItemEntity ->
+                aliases.forEach(alias -> {
+                    if (PageType.REGULAR_ARTICLE.equals(wikiItemEntity.getPageType()) && alias.length() < 255) {
+                        AliasEntity aliasEntity = new AliasEntity();
+                        aliasEntity.setLabel(alias);
+                        aliasEntity.setTarget(wikiItemEntity);
+                        aliasesSaver.process(aliasEntity);
+                    }
+                })));
         aliasesSaver.processRest();
     }
 
