@@ -1,4 +1,4 @@
-package pl.edu.pw.elka.polishentitylinker.imports;
+package pl.edu.pw.elka.polishentitylinker.processing;
 
 import lombok.extern.slf4j.Slf4j;
 

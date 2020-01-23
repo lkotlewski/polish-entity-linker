@@ -1,10 +1,10 @@
-package pl.edu.pw.elka.polishentitylinker.imports;
+package pl.edu.pw.elka.polishentitylinker.processing;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.elka.polishentitylinker.entities.AliasEntity;
-import pl.edu.pw.elka.polishentitylinker.imports.config.ItemsParserConfig;
+import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.model.csv.PageType;
 import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
 import pl.edu.pw.elka.polishentitylinker.repository.AliasRepository;

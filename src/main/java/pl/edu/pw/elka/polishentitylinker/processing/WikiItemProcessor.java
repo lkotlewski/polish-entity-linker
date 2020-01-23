@@ -1,10 +1,10 @@
-package pl.edu.pw.elka.polishentitylinker.imports;
+package pl.edu.pw.elka.polishentitylinker.processing;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import pl.edu.pw.elka.polishentitylinker.imports.config.ItemsParserConfig;
+import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.model.json.WikiItem;
 import pl.edu.pw.elka.polishentitylinker.service.WikiItemService;
 

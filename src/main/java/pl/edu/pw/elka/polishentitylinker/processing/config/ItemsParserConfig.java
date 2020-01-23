@@ -1,4 +1,4 @@
-package pl.edu.pw.elka.polishentitylinker.imports.config;
+package pl.edu.pw.elka.polishentitylinker.processing.config;
 
 import lombok.Getter;
 import lombok.Setter;

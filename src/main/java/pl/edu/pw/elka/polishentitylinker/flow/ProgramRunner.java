@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.elka.polishentitylinker.core.EntityLinker;
-import pl.edu.pw.elka.polishentitylinker.imports.PageProcessor;
-import pl.edu.pw.elka.polishentitylinker.imports.RedirectPageProcessor;
-import pl.edu.pw.elka.polishentitylinker.imports.TokensWithEntitiesProcessor;
-import pl.edu.pw.elka.polishentitylinker.imports.WikiItemProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.PageProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.RedirectPageProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.TokensWithEntitiesProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.WikiItemProcessor;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
