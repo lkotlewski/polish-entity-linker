@@ -37,11 +37,10 @@ public class PageProcessor extends LineFileProcessor {
 
         pagesImportSummary.incrementCounts(page.getType());
 
-        if (page.getType() != null && !PageType.TEMPLATE.equals(page.getType()) && !PageType.REDIRECT.equals(page.getType())) {
+        if (PageType.REGULAR_ARTICLE.equals(page.getType())) {
             WikiItemEntity wikiItemEntity = wikiItemRepository.findByTitlePl(page.getTitle());
             if (wikiItemEntity != null) {
                 wikiItemEntity.setPageId(page.getPageId());
-                wikiItemEntity.setPageType(page.getType());
                 wikiItemSaver.process(wikiItemEntity);
             }
 
