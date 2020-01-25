@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.elka.polishentitylinker.core.EntityLinker;
-import pl.edu.pw.elka.polishentitylinker.processing.PageProcessor;
-import pl.edu.pw.elka.polishentitylinker.processing.RedirectPageProcessor;
-import pl.edu.pw.elka.polishentitylinker.processing.TokensWithEntitiesProcessor;
-import pl.edu.pw.elka.polishentitylinker.processing.WikiItemProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.*;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -22,6 +19,7 @@ public class ProgramRunner {
     private final RedirectPageProcessor redirectPageProcessor;
     private final EntityLinker entityLinker;
     private final TokensWithEntitiesProcessor tokensWithEntitiesProcessor;
+    private final ArticlesProcessor articlesProcessor;
 
     private Map<ProgramOption, Runnable> actions;
 
@@ -36,6 +34,7 @@ public class ProgramRunner {
         actions.put(ProgramOption.IMPORT_REDIRECTS, redirectPageProcessor::parseFile);
         actions.put(ProgramOption.LINK_ENTITIES, entityLinker::linkEntities);
         actions.put(ProgramOption.COUNT_MENTIONS, tokensWithEntitiesProcessor::parseFile);
+        actions.put(ProgramOption.EVAL_ARTICLES_LENGTH, articlesProcessor::parseFile);
     }
 
     public void run() {

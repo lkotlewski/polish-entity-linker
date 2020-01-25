@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class TokenizedWord {
 
-    private long docId;
+    private Integer docId;
     private String token;
     private boolean precedingSpace;
     private String linkTitle;

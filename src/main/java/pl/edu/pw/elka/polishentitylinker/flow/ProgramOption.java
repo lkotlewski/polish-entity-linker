@@ -5,5 +5,6 @@ public enum ProgramOption {
     IMPORT_PAGES,
     IMPORT_REDIRECTS,
     LINK_ENTITIES,
-    COUNT_MENTIONS
+    COUNT_MENTIONS,
+    EVAL_ARTICLES_LENGTH
 }

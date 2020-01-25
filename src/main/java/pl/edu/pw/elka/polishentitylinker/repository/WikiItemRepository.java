@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface WikiItemRepository extends CrudRepository<WikiItemEntity, String> {
 
@@ -32,4 +33,6 @@ public interface WikiItemRepository extends CrudRepository<WikiItemEntity, Strin
     @Query(value = "select * from wiki_item where id in (select distinct target_id from alias where label = ?1)",
             nativeQuery = true)
     List<WikiItemEntity> findAllByOriginalFormFromAliases(@Param("originalForm") String originalForm);
+
+    Optional<WikiItemEntity> findByPageId(Integer pageId);
 }

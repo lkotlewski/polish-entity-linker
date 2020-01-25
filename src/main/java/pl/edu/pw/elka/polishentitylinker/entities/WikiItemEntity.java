@@ -38,4 +38,6 @@ public class WikiItemEntity {
     private PageType pageType;
 
     private Integer mentionsCount;
+
+    private Integer articleLength;
 }
