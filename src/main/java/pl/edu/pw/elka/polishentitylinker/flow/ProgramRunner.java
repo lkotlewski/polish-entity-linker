@@ -20,6 +20,7 @@ public class ProgramRunner {
     private final EntityLinker entityLinker;
     private final TokensWithEntitiesProcessor tokensWithEntitiesProcessor;
     private final ArticlesProcessor articlesProcessor;
+    private final TestTrainSetsPreparator testTrainSetsPreparator;
 
     private Map<ProgramOption, Runnable> actions;
 
@@ -35,6 +36,7 @@ public class ProgramRunner {
         actions.put(ProgramOption.LINK_ENTITIES, entityLinker::linkEntities);
         actions.put(ProgramOption.COUNT_MENTIONS, tokensWithEntitiesProcessor::parseFile);
         actions.put(ProgramOption.EVAL_ARTICLES_LENGTH, articlesProcessor::parseFile);
+        actions.put(ProgramOption.PREPARE_TRAIN_TEST, testTrainSetsPreparator::parseFile);
     }
 
     public void run() {

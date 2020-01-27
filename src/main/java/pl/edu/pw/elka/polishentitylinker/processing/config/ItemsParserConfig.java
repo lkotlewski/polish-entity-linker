@@ -15,5 +15,8 @@ public class ItemsParserConfig {
     private String pagesFilepath;
     private String redirectFilepath;
     private String tokensWithEntitiesFilepath;
+    private String trainDirectoryFilepath;
+    private String testFilepath;
+    private String backupFolderFilepath;
     private int saveBatchSize;
 }
