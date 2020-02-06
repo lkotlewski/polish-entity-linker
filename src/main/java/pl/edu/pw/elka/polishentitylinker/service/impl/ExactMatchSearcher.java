@@ -1,6 +1,7 @@
 package pl.edu.pw.elka.polishentitylinker.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
@@ -11,6 +12,7 @@ import pl.edu.pw.elka.polishentitylinker.utils.CandidateSearchUtils;
 import java.util.List;
 
 @Service
+@Primary
 @RequiredArgsConstructor
 public class ExactMatchSearcher implements Searcher {
 
@@ -18,10 +20,6 @@ public class ExactMatchSearcher implements Searcher {
 
     @Override
     public List<WikiItemEntity> findCandidates(NamedEntity namedEntity) {
-        String lemma = namedEntity.getEntitySpan().get(0).getLemma();
-        List<WikiItemEntity> candidates = wikiItemRepository.findAllByLemmaFromRedirects(lemma);
-        candidates.addAll(wikiItemRepository.findAllByOriginalFormFromAliases(namedEntity.toOriginalForm()));
-        candidates.addAll(wikiItemRepository.findAllByLemma(lemma));
-        return CandidateSearchUtils.getDistinctRegularArticles(candidates);
+        return CandidateSearchUtils.getDistinctRegularArticles(wikiItemRepository.findAllByOriginalFormFromAliases(namedEntity.toOriginalForm()));
     }
 }

@@ -3,15 +3,16 @@ package pl.edu.pw.elka.polishentitylinker.model.tsv;
 import lombok.Builder;
 import lombok.Data;
 
-@Builder
 @Data
-public class TokenizedExtendedWord {
+public class TokenizedExtendedWord extends TokenizedWord {
 
-    private long docId;
-    private String token;
     private String lemma;
-    private boolean precedingSpace;
     private String morphosyntacticTags;
-    private String linkTitle;
-    private String entityId;
+
+    @Builder(builderMethodName = "extendedBuilder")
+    public TokenizedExtendedWord(Integer docId, String token, boolean precedingSpace, String linkTitle, String entityId, String lemma, String morphosyntacticTags) {
+        super(docId, token, precedingSpace, linkTitle, entityId);
+        this.lemma = lemma;
+        this.morphosyntacticTags = morphosyntacticTags;
+    }
 }

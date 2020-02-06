@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface Disambiguator {
 
-    public WikiItemEntity choose(NamedEntity namedEntity, List<WikiItemEntity> candidates);
+    WikiItemEntity choose(NamedEntity namedEntity, List<WikiItemEntity> candidates);
 }

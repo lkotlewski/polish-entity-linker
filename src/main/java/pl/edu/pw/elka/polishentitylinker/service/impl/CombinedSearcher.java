@@ -1,7 +1,6 @@
 package pl.edu.pw.elka.polishentitylinker.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
@@ -10,7 +9,6 @@ import pl.edu.pw.elka.polishentitylinker.service.Searcher;
 import java.util.List;
 
 @Service
-@Primary
 @RequiredArgsConstructor
 public class CombinedSearcher implements Searcher {
 

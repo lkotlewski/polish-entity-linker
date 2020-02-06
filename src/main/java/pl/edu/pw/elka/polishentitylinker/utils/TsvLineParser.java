@@ -18,14 +18,8 @@ public class TsvLineParser {
                     .linkTitle(parts.get(3))
                     .entityId(parts.get(4))
                     .build();
-        }
-        return null;
-    }
-
-    public static TokenizedExtendedWord parseTokenizedExtendedWord(String line) {
-        List<String> parts = Arrays.asList(line.split("\\s"));
-        if (parts.size() == 7) {
-            return TokenizedExtendedWord.builder()
+        } else if(parts.size() == 7) {
+            return TokenizedExtendedWord.extendedBuilder()
                     .docId(Integer.parseInt(parts.get(0)))
                     .token(parts.get(1))
                     .lemma(parts.get(2))

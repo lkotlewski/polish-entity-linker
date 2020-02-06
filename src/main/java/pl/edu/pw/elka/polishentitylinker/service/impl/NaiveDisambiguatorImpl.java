@@ -19,11 +19,15 @@ public class NaiveDisambiguatorImpl implements Disambiguator {
     public WikiItemEntity choose(NamedEntity namedEntity, List<WikiItemEntity> candidates) {
         return candidates
                 .stream()
-                .reduce((a, b) -> a.getMentionsCount() > b.getMentionsCount() ? a : b)
+                .reduce((a, b) -> getRedirectCount(a) > getMentionsCount(b) ? a : b)
                 .orElse(null);
     }
 
     private int getRedirectCount(WikiItemEntity a) {
         return redirectPageRepository.findAllByTarget(a).size();
+    }
+
+    private int getMentionsCount(WikiItemEntity wikiItemEntity) {
+        return wikiItemEntity.getMentionsCount() == null ? 0 : wikiItemEntity.getMentionsCount();
     }
 }
