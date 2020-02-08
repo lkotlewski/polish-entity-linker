@@ -1,9 +1,10 @@
-package pl.edu.pw.elka.polishentitylinker.processing;
+package pl.edu.pw.elka.polishentitylinker.processing.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.elka.polishentitylinker.entities.AliasEntity;
+import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
 import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.model.csv.PageType;
 import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
@@ -33,15 +34,15 @@ public class TokensWithEntitiesProcessor extends LineFileProcessor {
     private String lastEntityId;
 
     @Override
-    public void parseFile() {
+    public void processFile(String pathToFile) {
         aliasesSaver = new BufferedBatchProcessor<>(aliasRepository::saveAll, itemsParserConfig.getSaveBatchSize());
-        parseFile(itemsParserConfig.getTokensWithEntitiesFilepath());
+        processLineByLine(pathToFile);
         saveCountResults();
         saveAliases();
     }
 
     @Override
-    void processLine(String line) {
+    protected void processLine(String line) {
         TokenizedWord tokenizedWord = TsvLineParser.parseTokenizedWord(line);
         if (tokenizedWord != null) {
             String entityId = tokenizedWord.getEntityId();

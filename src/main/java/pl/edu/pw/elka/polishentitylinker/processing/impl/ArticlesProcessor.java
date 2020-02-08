@@ -1,10 +1,12 @@
-package pl.edu.pw.elka.polishentitylinker.processing;
+package pl.edu.pw.elka.polishentitylinker.processing.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
+import pl.edu.pw.elka.polishentitylinker.processing.FileProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
 import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
 import pl.edu.pw.elka.polishentitylinker.utils.BufferedBatchProcessor;
@@ -26,14 +28,14 @@ public class ArticlesProcessor extends LineFileProcessor {
     private Integer lastDocId;
 
     @Override
-    public void parseFile() {
+    public void processFile(String pathToFile) {
         articlesLengthSaver = new BufferedBatchProcessor<>(wikiItemRepository::saveAll, itemsParserConfig.getSaveBatchSize());
-        parseFile(itemsParserConfig.getTokensWithEntitiesFilepath());
+        processLineByLine(pathToFile);
         saveResults();
     }
 
     @Override
-    void processLine(String line) {
+    protected void processLine(String line) {
         TokenizedWord tokenizedWord = TsvLineParser.parseTokenizedWord(line);
         if (tokenizedWord != null) {
             Integer docId = tokenizedWord.getDocId();

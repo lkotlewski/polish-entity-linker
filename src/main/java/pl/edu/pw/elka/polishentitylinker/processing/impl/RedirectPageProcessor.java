@@ -1,10 +1,11 @@
-package pl.edu.pw.elka.polishentitylinker.processing;
+package pl.edu.pw.elka.polishentitylinker.processing.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.elka.polishentitylinker.entities.RedirectPageEntity;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
+import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
 import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.model.csv.RedirectPage;
 import pl.edu.pw.elka.polishentitylinker.repository.RedirectPageRepository;
@@ -23,14 +24,14 @@ public class RedirectPageProcessor extends LineFileProcessor {
     private BufferedBatchProcessor<RedirectPageEntity> redirectPageUpdater;
 
     @Override
-    public void parseFile() {
+    public void processFile(String pathToFile) {
         redirectPageUpdater = new BufferedBatchProcessor<>(redirectPageRepository::saveAll, itemsParserConfig.getSaveBatchSize());
-        parseFile(itemsParserConfig.getRedirectFilepath());
+        processLineByLine(pathToFile);
         redirectPageUpdater.processRest();
     }
 
     @Override
-    void processLine(String line) {
+    protected void processLine(String line) {
         RedirectPage redirectPage = new RedirectPage(line);
         log.info(String.valueOf(redirectPage.getPageId()));
         WikiItemEntity wikiItemEntity = wikiItemRepository.findByTitlePl(redirectPage.getTargetTitle());

@@ -1,9 +1,10 @@
-package pl.edu.pw.elka.polishentitylinker.processing;
+package pl.edu.pw.elka.polishentitylinker.processing.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
+import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
 import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.processing.summary.PagesImportSummary;
 import pl.edu.pw.elka.polishentitylinker.model.csv.Page;
@@ -23,15 +24,15 @@ public class PageProcessor extends LineFileProcessor {
     private BufferedBatchProcessor<WikiItemEntity> wikiItemSaver;
 
     @Override
-    public void parseFile() {
+    public void processFile(String pathToFile) {
         wikiItemSaver = new BufferedBatchProcessor<>(wikiItemRepository::saveAll, itemsParserConfig.getSaveBatchSize());
-        parseFile(itemsParserConfig.getPagesFilepath());
+        processLineByLine(pathToFile);
         wikiItemSaver.processRest();
         pagesImportSummary.printSummary();
     }
 
     @Override
-    void processLine(String line) {
+    protected void processLine(String line) {
         Page page = new Page(line);
         log.info(String.valueOf(page.getPageId()));
 

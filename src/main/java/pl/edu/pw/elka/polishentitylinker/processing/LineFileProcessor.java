@@ -8,9 +8,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Slf4j
-public abstract class LineFileProcessor {
+public abstract class LineFileProcessor implements FileProcessor {
 
-    void parseFile(String path) {
+    protected abstract void processLine(String line);
+
+    protected void processLineByLine(String path) {
         Path path1 = Paths.get(path);
 
         try {
@@ -19,9 +21,4 @@ public abstract class LineFileProcessor {
             log.error("", e);
         }
     }
-
-    public abstract void parseFile();
-
-    abstract void processLine(String line);
-
 }

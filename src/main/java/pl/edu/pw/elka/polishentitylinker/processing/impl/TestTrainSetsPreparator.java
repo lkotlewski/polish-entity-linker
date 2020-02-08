@@ -1,4 +1,4 @@
-package pl.edu.pw.elka.polishentitylinker.processing;
+package pl.edu.pw.elka.polishentitylinker.processing.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +7,7 @@ import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.exception.ImportException;
 import pl.edu.pw.elka.polishentitylinker.model.DividedArticle;
 import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
+import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
 import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
 import pl.edu.pw.elka.polishentitylinker.utils.ArticleDivider;
@@ -33,17 +34,17 @@ public class TestTrainSetsPreparator extends LineFileProcessor {
     private Integer lastDocId;
 
     @Override
-    public void parseFile() {
+    public void processFile(String pathToFile) {
         List<WikiItemEntity> longestArticles = wikiItemRepository.findLongestArticles(10000);
         longestArticlesPageIds = longestArticles.stream()
                 .map(WikiItemEntity::getPageId)
                 .collect(Collectors.toList());
-//        parseFile(itemsParserConfig.getTokensWithEntitiesFilepath());
+        processLineByLine(pathToFile);
         divideLongestArticles();
     }
 
     @Override
-    void processLine(String line) {
+    protected void processLine(String line) {
         TokenizedWord tokenizedWord = TsvLineParser.parseTokenizedWord(line);
         if (tokenizedWord != null) {
             Integer docId = tokenizedWord.getDocId();

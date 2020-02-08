@@ -1,11 +1,11 @@
-package pl.edu.pw.elka.polishentitylinker.processing;
+package pl.edu.pw.elka.polishentitylinker.processing.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.model.json.WikiItem;
+import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
 import pl.edu.pw.elka.polishentitylinker.service.WikiItemService;
 
 import java.io.IOException;
@@ -16,15 +16,14 @@ import java.io.IOException;
 public class WikiItemProcessor extends LineFileProcessor {
 
     private final WikiItemService wikiItemService;
-    private final ItemsParserConfig itemsParserConfig;
 
     @Override
-    public void parseFile() {
-        parseFile(itemsParserConfig.getWikiItemsFilepath());
+    public void processFile(String pathToFile) {
+        processLineByLine(pathToFile);
     }
 
     @Override
-    void processLine(String line) {
+    protected void processLine(String line) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             WikiItem wikiItem = objectMapper.readValue(line, WikiItem.class);
