@@ -34,12 +34,12 @@ public class TestTrainSetsPreparator extends LineFileProcessor {
     private Integer lastDocId;
 
     @Override
-    public void processFile(String pathToFile) {
+    public void processFile() {
         List<WikiItemEntity> longestArticles = wikiItemRepository.findLongestArticles(10000);
         longestArticlesPageIds = longestArticles.stream()
                 .map(WikiItemEntity::getPageId)
                 .collect(Collectors.toList());
-        processLineByLine(pathToFile);
+        processLineByLine(itemsParserConfig.getTrainDirectoryFilepath());
         divideLongestArticles();
     }
 

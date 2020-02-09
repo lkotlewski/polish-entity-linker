@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.elka.polishentitylinker.model.json.WikiItem;
 import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.service.WikiItemService;
 
 import java.io.IOException;
@@ -15,11 +16,12 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class WikiItemProcessor extends LineFileProcessor {
 
+    private final ItemsParserConfig itemsParserConfig;
     private final WikiItemService wikiItemService;
 
     @Override
-    public void processFile(String pathToFile) {
-        processLineByLine(pathToFile);
+    public void processFile() {
+        processLineByLine(itemsParserConfig.getWikiItemsFilepath());
     }
 
     @Override

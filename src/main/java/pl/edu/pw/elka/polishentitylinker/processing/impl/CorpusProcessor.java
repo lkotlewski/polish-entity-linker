@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.elka.polishentitylinker.entities.AliasEntity;
-import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
-import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
+import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.csv.PageType;
 import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
+import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.config.CorpusProcessorConfig;
+import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.repository.AliasRepository;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
 import pl.edu.pw.elka.polishentitylinker.utils.BufferedBatchProcessor;
@@ -21,8 +23,9 @@ import java.util.Set;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TokensWithEntitiesProcessor extends LineFileProcessor {
+public class CorpusProcessor extends LineFileProcessor {
 
+    private final CorpusProcessorConfig config;
     private final ItemsParserConfig itemsParserConfig;
     private final WikiItemRepository wikiItemRepository;
     private final AliasRepository aliasRepository;
@@ -33,18 +36,37 @@ public class TokensWithEntitiesProcessor extends LineFileProcessor {
     private StringBuilder stringBuilder = new StringBuilder();
     private String lastEntityId;
 
+    private BufferedBatchProcessor<WikiItemEntity> articlesLengthSaver;
+    private Map<Integer, Integer> articlesLength = new HashMap<>();
+    private Integer lastDocId;
+
     @Override
-    public void processFile(String pathToFile) {
+    public void processFile() {
         aliasesSaver = new BufferedBatchProcessor<>(aliasRepository::saveAll, itemsParserConfig.getSaveBatchSize());
-        processLineByLine(pathToFile);
-        saveCountResults();
-        saveAliases();
+        articlesLengthSaver = new BufferedBatchProcessor<>(wikiItemRepository::saveAll, itemsParserConfig.getSaveBatchSize());
+        processLineByLine(config.getFilepath());
+        if (config.isCountMentions()) {
+            saveCountResults();
+        }
+        if (config.isExtractAliases()) {
+            saveAliases();
+        }
+        if (config.isEvalArticlesLength()) {
+            saveArticlesLengthResults();
+        }
     }
 
     @Override
     protected void processLine(String line) {
         TokenizedWord tokenizedWord = TsvLineParser.parseTokenizedWord(line);
         if (tokenizedWord != null) {
+            processEntityId(tokenizedWord);
+            processDocId(tokenizedWord);
+        }
+    }
+
+    private void processEntityId(TokenizedWord tokenizedWord) {
+        if(config.isCountMentions() || config.isExtractAliases()) {
             String entityId = tokenizedWord.getEntityId();
             if (isNamedEntity(lastEntityId) && !isContinuation(entityId)) {
                 handleEntitySpanEnd();
@@ -59,6 +81,21 @@ public class TokensWithEntitiesProcessor extends LineFileProcessor {
         }
     }
 
+    private void processDocId(TokenizedWord tokenizedWord) {
+        if (config.isEvalArticlesLength()) {
+            Integer docId = tokenizedWord.getDocId();
+            if (articlesLength.containsKey(docId)) {
+                articlesLength.put(docId, articlesLength.get(docId) + 1);
+            } else {
+                articlesLength.put(docId, 1);
+            }
+            if (!docId.equals(lastDocId)) {
+                log.info("processing {}", docId);
+                lastDocId = docId;
+            }
+        }
+    }
+
     private boolean isNamedEntity(String entityId) {
         return entityId != null && !"_".equals(entityId);
     }
@@ -67,9 +104,20 @@ public class TokensWithEntitiesProcessor extends LineFileProcessor {
         return entityId.equals(lastEntityId);
     }
 
+
+    private void appendSpaceIfPreceded(TokenizedWord tokenizedWord) {
+        if (tokenizedWord.isPrecedingSpace()) {
+            stringBuilder.append(" ");
+        }
+    }
+
     private void handleEntitySpanEnd() {
-        incrementMentionsCount(lastEntityId);
-        addAlias(lastEntityId, stringBuilder.toString());
+        if (config.isCountMentions()) {
+            incrementMentionsCount(lastEntityId);
+        }
+        if (config.isExtractAliases()) {
+            addAlias(lastEntityId, stringBuilder.toString());
+        }
         stringBuilder.setLength(0);
     }
 
@@ -80,12 +128,6 @@ public class TokensWithEntitiesProcessor extends LineFileProcessor {
             entitiesMentions.put(entityId, 1);
         }
         log.info("{} mentions count incremented", entityId);
-    }
-
-    private void appendSpaceIfPreceded(TokenizedWord tokenizedWord) {
-        if (tokenizedWord.isPrecedingSpace()) {
-            stringBuilder.append(" ");
-        }
     }
 
     private void addAlias(String entityId, String alias) {
@@ -124,6 +166,18 @@ public class TokensWithEntitiesProcessor extends LineFileProcessor {
                     }
                 })));
         aliasesSaver.processRest();
+    }
+
+    private void saveArticlesLengthResults() {
+        log.info("saving articles lengths");
+        articlesLength.forEach((docId, articleLength) -> {
+            log.info(docId.toString());
+            wikiItemRepository.findByPageId(docId).ifPresent(wikiItemEntity -> {
+                wikiItemEntity.setArticleLength(articleLength);
+                articlesLengthSaver.process(wikiItemEntity);
+            });
+        });
+        articlesLengthSaver.processRest();
     }
 
 

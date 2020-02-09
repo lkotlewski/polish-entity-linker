@@ -24,9 +24,9 @@ public class PageProcessor extends LineFileProcessor {
     private BufferedBatchProcessor<WikiItemEntity> wikiItemSaver;
 
     @Override
-    public void processFile(String pathToFile) {
+    public void processFile() {
         wikiItemSaver = new BufferedBatchProcessor<>(wikiItemRepository::saveAll, itemsParserConfig.getSaveBatchSize());
-        processLineByLine(pathToFile);
+        processLineByLine(itemsParserConfig.getPagesFilepath());
         wikiItemSaver.processRest();
         pagesImportSummary.printSummary();
     }

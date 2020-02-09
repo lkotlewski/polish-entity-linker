@@ -24,9 +24,9 @@ public class RedirectPageProcessor extends LineFileProcessor {
     private BufferedBatchProcessor<RedirectPageEntity> redirectPageUpdater;
 
     @Override
-    public void processFile(String pathToFile) {
+    public void processFile() {
         redirectPageUpdater = new BufferedBatchProcessor<>(redirectPageRepository::saveAll, itemsParserConfig.getSaveBatchSize());
-        processLineByLine(pathToFile);
+        processLineByLine(itemsParserConfig.getRedirectFilepath());
         redirectPageUpdater.processRest();
     }
 
