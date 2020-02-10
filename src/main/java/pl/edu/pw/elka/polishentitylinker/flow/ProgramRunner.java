@@ -18,6 +18,7 @@ public class ProgramRunner {
     private final PageProcessor pageParser;
     private final RedirectPageProcessor redirectPageProcessor;
     private final EntityLinker entityLinker;
+    private final CorpusSanitizer corpusSanitizer;
     private final CorpusProcessor corpusProcessor;
     private final TestTrainSetsPreparator testTrainSetsPreparator;
 
@@ -33,6 +34,7 @@ public class ProgramRunner {
         actions.put(ProgramOption.IMPORT_WIKI_ITEMS, wikiItemParser::processFile);
         actions.put(ProgramOption.IMPORT_PAGES, pageParser::processFile);
         actions.put(ProgramOption.IMPORT_REDIRECTS, redirectPageProcessor::processFile);
+        actions.put(ProgramOption.SANITIZE_CORPUS, corpusSanitizer::processFile);
         actions.put(ProgramOption.PROCESS_CORPUS, corpusProcessor::processFile);
         actions.put(ProgramOption.PREPARE_TRAIN_TEST, testTrainSetsPreparator::processFile);
         actions.put(ProgramOption.LINK_ENTITIES, entityLinker::linkEntities);
