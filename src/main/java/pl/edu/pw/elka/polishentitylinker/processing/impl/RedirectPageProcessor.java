@@ -5,9 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.elka.polishentitylinker.entities.RedirectPageEntity;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
-import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
-import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.model.csv.RedirectPage;
+import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.config.BatchProcessingConfig;
+import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.repository.RedirectPageRepository;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
 import pl.edu.pw.elka.polishentitylinker.utils.BufferedBatchProcessor;
@@ -18,6 +19,7 @@ import pl.edu.pw.elka.polishentitylinker.utils.BufferedBatchProcessor;
 public class RedirectPageProcessor extends LineFileProcessor {
 
     private final ItemsParserConfig itemsParserConfig;
+    private final BatchProcessingConfig batchProcessingConfig;
     private final WikiItemRepository wikiItemRepository;
     private final RedirectPageRepository redirectPageRepository;
 
@@ -25,7 +27,7 @@ public class RedirectPageProcessor extends LineFileProcessor {
 
     @Override
     public void processFile() {
-        redirectPageUpdater = new BufferedBatchProcessor<>(redirectPageRepository::saveAll, itemsParserConfig.getSaveBatchSize());
+        redirectPageUpdater = new BufferedBatchProcessor<>(redirectPageRepository::saveAll, batchProcessingConfig.getSize());
         processLineByLine(itemsParserConfig.getRedirectFilepath());
         redirectPageUpdater.processRest();
     }

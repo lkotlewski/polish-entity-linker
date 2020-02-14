@@ -18,5 +18,4 @@ public class ItemsParserConfig {
     private String trainDirectoryFilepath;
     private String testFilepath;
     private String backupFolderFilepath;
-    private int saveBatchSize;
 }

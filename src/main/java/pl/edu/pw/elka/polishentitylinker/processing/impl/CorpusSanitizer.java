@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
 import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.config.BatchProcessingConfig;
 import pl.edu.pw.elka.polishentitylinker.processing.config.CorpusSanitizerConfig;
-import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.utils.BufferedBatchProcessor;
 import pl.edu.pw.elka.polishentitylinker.utils.TsvLineParser;
 
@@ -25,7 +25,7 @@ public class CorpusSanitizer extends LineFileProcessor {
     private static final String REF_TOKEN = "ref";
     private static final String SLASH = "/";
 
-    private final ItemsParserConfig itemsParserConfig;
+    private final BatchProcessingConfig batchProcessingConfig;
     private final CorpusSanitizerConfig config;
 
     private BufferedBatchProcessor<String> fileAppender;
@@ -35,7 +35,7 @@ public class CorpusSanitizer extends LineFileProcessor {
 
     @Override
     public void processFile() {
-        fileAppender = new BufferedBatchProcessor<>(this::appendLines, itemsParserConfig.getSaveBatchSize());
+        fileAppender = new BufferedBatchProcessor<>(this::appendLines, batchProcessingConfig.getSize());
         outFilepath = Paths.get(config.getOutFilepath());
         processLineByLine(config.getInFilepath());
         fileAppender.processRest();

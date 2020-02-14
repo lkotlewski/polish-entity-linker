@@ -8,8 +8,8 @@ import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.csv.PageType;
 import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
 import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.config.BatchProcessingConfig;
 import pl.edu.pw.elka.polishentitylinker.processing.config.CorpusProcessorConfig;
-import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.repository.AliasRepository;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
 import pl.edu.pw.elka.polishentitylinker.utils.BufferedBatchProcessor;
@@ -26,7 +26,7 @@ import java.util.Set;
 public class CorpusProcessor extends LineFileProcessor {
 
     private final CorpusProcessorConfig config;
-    private final ItemsParserConfig itemsParserConfig;
+    private final BatchProcessingConfig batchProcessingConfig;
     private final WikiItemRepository wikiItemRepository;
     private final AliasRepository aliasRepository;
     private BufferedBatchProcessor<AliasEntity> aliasesSaver;
@@ -42,8 +42,8 @@ public class CorpusProcessor extends LineFileProcessor {
 
     @Override
     public void processFile() {
-        aliasesSaver = new BufferedBatchProcessor<>(aliasRepository::saveAll, itemsParserConfig.getSaveBatchSize());
-        articlesLengthSaver = new BufferedBatchProcessor<>(wikiItemRepository::saveAll, itemsParserConfig.getSaveBatchSize());
+        aliasesSaver = new BufferedBatchProcessor<>(aliasRepository::saveAll, batchProcessingConfig.getSize());
+        articlesLengthSaver = new BufferedBatchProcessor<>(wikiItemRepository::saveAll, batchProcessingConfig.getSize());
         processLineByLine(config.getFilepath());
         if (config.isCountMentions()) {
             saveCountResults();

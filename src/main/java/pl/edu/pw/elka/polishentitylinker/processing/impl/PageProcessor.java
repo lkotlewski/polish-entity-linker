@@ -4,11 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
-import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
-import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
-import pl.edu.pw.elka.polishentitylinker.processing.summary.PagesImportSummary;
 import pl.edu.pw.elka.polishentitylinker.model.csv.Page;
 import pl.edu.pw.elka.polishentitylinker.model.csv.PageType;
+import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.config.BatchProcessingConfig;
+import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
+import pl.edu.pw.elka.polishentitylinker.processing.summary.PagesImportSummary;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
 import pl.edu.pw.elka.polishentitylinker.utils.BufferedBatchProcessor;
 
@@ -18,6 +19,7 @@ import pl.edu.pw.elka.polishentitylinker.utils.BufferedBatchProcessor;
 public class PageProcessor extends LineFileProcessor {
 
     private final ItemsParserConfig itemsParserConfig;
+    private final BatchProcessingConfig batchProcessingConfig;
     private final WikiItemRepository wikiItemRepository;
     private final PagesImportSummary pagesImportSummary = new PagesImportSummary();
 
@@ -25,7 +27,7 @@ public class PageProcessor extends LineFileProcessor {
 
     @Override
     public void processFile() {
-        wikiItemSaver = new BufferedBatchProcessor<>(wikiItemRepository::saveAll, itemsParserConfig.getSaveBatchSize());
+        wikiItemSaver = new BufferedBatchProcessor<>(wikiItemRepository::saveAll, batchProcessingConfig.getSize());
         processLineByLine(itemsParserConfig.getPagesFilepath());
         wikiItemSaver.processRest();
         pagesImportSummary.printSummary();
