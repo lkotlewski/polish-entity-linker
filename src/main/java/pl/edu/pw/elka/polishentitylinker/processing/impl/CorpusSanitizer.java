@@ -23,6 +23,7 @@ import java.util.List;
 public class CorpusSanitizer extends LineFileProcessor {
 
     private static final String REF_TOKEN = "ref";
+    private static final String SLASH = "/";
 
     private final ItemsParserConfig itemsParserConfig;
     private final CorpusSanitizerConfig config;
@@ -30,6 +31,7 @@ public class CorpusSanitizer extends LineFileProcessor {
     private BufferedBatchProcessor<String> fileAppender;
     private Path outFilepath;
     private boolean processingRef = false;
+    private boolean lastSlash = false;
 
     @Override
     public void processFile() {
@@ -42,13 +44,28 @@ public class CorpusSanitizer extends LineFileProcessor {
 
     @Override
     protected void processLine(String line) {
-        boolean refBorder = false;
+        boolean refEnd = false;
         TokenizedWord tokenizedWord = TsvLineParser.parseTokenizedWord(line);
-        if (tokenizedWord != null && REF_TOKEN.equals(tokenizedWord.getToken())) {
-            processingRef = !processingRef;
-            refBorder = true;
+        if (tokenizedWord != null) {
+            if (REF_TOKEN.equals(tokenizedWord.getToken())) {
+                if(lastSlash) {
+                    refEnd = true;
+                } else {
+                    processingRef = true;
+                }
+                lastSlash = false;
+            } else if (SLASH.equals(tokenizedWord.getToken())) {
+                if (processingRef) {
+                    processingRef = false;
+                    lastSlash = true;
+                    refEnd = true;
+                }
+            } else {
+                lastSlash = false;
+            }
         }
-        if (!processingRef && !refBorder) {
+
+        if (!processingRef && !refEnd) {
             fileAppender.process(line);
         }
     }
@@ -56,7 +73,7 @@ public class CorpusSanitizer extends LineFileProcessor {
     private void appendLines(List<String> lines) {
         String textPart = String.join("\n", lines);
         try {
-            Files.write(outFilepath, textPart.getBytes(), StandardOpenOption.APPEND);
+            Files.write(outFilepath, textPart.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
