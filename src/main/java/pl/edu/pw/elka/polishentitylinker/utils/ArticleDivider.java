@@ -10,10 +10,10 @@ import java.util.stream.IntStream;
 
 public class ArticleDivider {
 
-    public static DividedArticle divideArticle(Path path) throws IOException {
+    public static DividedArticle divideArticle(Path path, float trainPart) throws IOException {
         List<String> lines = Files.readAllLines(path);
 
-        int halfIndex = lines.size() / 2;
+        int halfIndex = (int) (lines.size() * trainPart);
         List<String> secondHalf = lines.subList(halfIndex, lines.size());
         int firstEmptyInSecondHalf = IntStream.range(0, secondHalf.size())
                 .filter(idx -> secondHalf.get(idx) == null || secondHalf.get(idx).trim().isEmpty())

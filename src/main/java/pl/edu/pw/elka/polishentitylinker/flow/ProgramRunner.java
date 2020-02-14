@@ -20,6 +20,7 @@ public class ProgramRunner {
     private final EntityLinker entityLinker;
     private final CorpusSanitizer corpusSanitizer;
     private final CorpusProcessor corpusProcessor;
+    private final ArticleToFileExtractor articleToFileExtractor;
     private final TestTrainSetsPreparator testTrainSetsPreparator;
 
 
@@ -36,6 +37,7 @@ public class ProgramRunner {
         actions.put(ProgramOption.IMPORT_REDIRECTS, redirectPageProcessor::processFile);
         actions.put(ProgramOption.SANITIZE_CORPUS, corpusSanitizer::processFile);
         actions.put(ProgramOption.PROCESS_CORPUS, corpusProcessor::processFile);
+        actions.put(ProgramOption.EXTRACT_ARTICLES, articleToFileExtractor::processFile);
         actions.put(ProgramOption.PREPARE_TRAIN_TEST, testTrainSetsPreparator::processFile);
         actions.put(ProgramOption.LINK_ENTITIES, entityLinker::linkEntities);
     }
