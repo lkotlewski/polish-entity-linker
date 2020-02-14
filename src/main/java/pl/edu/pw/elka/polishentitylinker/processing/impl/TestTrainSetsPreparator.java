@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TestTrainSetsPreparator implements FileProcessor {
+public class TestTrainSetsPreparator {
 
     private final String FILENAME_PATTERN = "%d.tsv";
 
@@ -31,8 +31,7 @@ public class TestTrainSetsPreparator implements FileProcessor {
 
     private List<Integer> longestArticlesPageIds;
 
-    @Override
-    public void processFile() {
+    public void processDirectory() {
         List<WikiItemEntity> longestArticles = wikiItemRepository.findLongestArticles(config.getNumberToDivide());
         longestArticlesPageIds = longestArticles.stream()
                 .map(WikiItemEntity::getPageId)
