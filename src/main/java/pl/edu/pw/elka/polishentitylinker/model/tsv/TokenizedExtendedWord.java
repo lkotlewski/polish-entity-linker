@@ -2,8 +2,10 @@ package pl.edu.pw.elka.polishentitylinker.model.tsv;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class TokenizedExtendedWord extends TokenizedWord {
 
     private String lemma;

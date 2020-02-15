@@ -9,15 +9,25 @@ import java.util.List;
 public class NamedEntity {
 
     private List<TokenizedWord> entitySpan;
-    private Context context;
+    private List<TokenizedWord> context;
 
     public String toOriginalForm() {
+        return toOriginalForm(entitySpan);
+    }
+
+    public String getContextAsString() {
+        return toOriginalForm(context);
+    }
+
+    private String toOriginalForm(List<TokenizedWord> span) {
         StringBuilder s = new StringBuilder();
-        entitySpan.forEach(tokenizedWord -> {
-                    if (tokenizedWord.isPrecedingSpace() && s.length() != 0) {
+        span.forEach(tokenizedWord -> {
+                    if (tokenizedWord == null || (tokenizedWord.isPrecedingSpace() && s.length() != 0)) {
                         s.append(" ");
                     }
-                    s.append(tokenizedWord.getToken());
+                    if (tokenizedWord != null) {
+                        s.append(tokenizedWord.getToken());
+                    }
                 }
         );
         return s.toString();
