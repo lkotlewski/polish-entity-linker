@@ -22,6 +22,7 @@ public class DirectoryCorpusSanitizer {
     public void processDirectory() {
         try {
             Files.list(Paths.get(config.getInFilepath()))
+                    .filter(path -> !Paths.get(config.getOutFilepath(), path.getFileName().toString()).toFile().exists())
                     .forEach(path -> {
                         CorpusSanitizerConfig corpusSanitizerConfig = new CorpusSanitizerConfig();
                         corpusSanitizerConfig.setInFilepath(path.toAbsolutePath().toString());
