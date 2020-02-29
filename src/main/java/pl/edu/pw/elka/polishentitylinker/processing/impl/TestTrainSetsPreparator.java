@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.exception.ImportException;
 import pl.edu.pw.elka.polishentitylinker.model.DividedArticle;
-import pl.edu.pw.elka.polishentitylinker.processing.FileProcessor;
 import pl.edu.pw.elka.polishentitylinker.processing.config.TestTrainPreparatorConfig;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
 import pl.edu.pw.elka.polishentitylinker.utils.ArticleDivider;
@@ -47,7 +46,7 @@ public class TestTrainSetsPreparator {
                             Paths.get(config.getTrainDirectory(), filename);
                     try {
                         DividedArticle dividedArticle = ArticleDivider.divideArticle(trainFilepath, config.getTrainLeftPart());
-                        Files.write(testFilepath, dividedArticle.getTestPart(), StandardOpenOption.APPEND);
+                        Files.write(testFilepath, dividedArticle.getTestPart(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
                         Files.copy(trainFilepath, Paths.get(config.getBackupDirectory(), filename));
                         Files.delete(trainFilepath);
                         Files.write(trainFilepath, dividedArticle.getTrainPart());
