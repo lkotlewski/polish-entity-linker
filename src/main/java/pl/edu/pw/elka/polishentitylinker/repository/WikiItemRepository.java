@@ -39,4 +39,8 @@ public interface WikiItemRepository extends CrudRepository<WikiItemEntity, Strin
     @Query(value = "select * from wiki_item where article_length is not null and page_type = 0 order by article_length desc limit ?1",
             nativeQuery = true)
     List<WikiItemEntity> findLongestArticles(int limit);
+
+    @Query(value = "select * from wiki_item where article_length > ?1 and page_type = 0  limit ?2",
+            nativeQuery = true)
+    List<WikiItemEntity> findWithHigherArticleLength(int minLength, int limit);
 }
