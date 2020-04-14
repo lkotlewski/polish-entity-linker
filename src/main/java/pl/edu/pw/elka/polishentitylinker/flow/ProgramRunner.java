@@ -23,6 +23,7 @@ public class ProgramRunner {
     private final CorpusProcessor corpusProcessor;
     private final ArticleToFileExtractor articleToFileExtractor;
     private final TestTrainSetsPreparator testTrainSetsPreparator;
+    private final CategoriesProcessor categoriesProcessor;
 
 
     private Map<ProgramOption, Runnable> actions;
@@ -42,6 +43,7 @@ public class ProgramRunner {
         actions.put(ProgramOption.EXTRACT_ARTICLES, articleToFileExtractor::processFile);
         actions.put(ProgramOption.PREPARE_TRAIN_TEST, testTrainSetsPreparator::processDirectory);
         actions.put(ProgramOption.LINK_ENTITIES, entityLinker::linkEntities);
+        actions.put(ProgramOption.PROCESS_CATEGORIES, categoriesProcessor::processCategoriesStructure);
     }
 
     public void run() {
