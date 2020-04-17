@@ -30,12 +30,14 @@ public class TaggedTextIterator {
     private List<NamedEntity> namedEntities;
     private int currentEntityStartIdx;
 
-    public void processFile(String path) {
-        Path path1 = Paths.get(path);
+    public void processFile(String filepath) {
+        processFile(Paths.get(filepath));
+    }
 
+    public void processFile(Path path) {
         try {
             loadedArticles =
-                    Files.lines(path1)
+                    Files.lines(path)
                             .map(this::parseLine)
                             .filter(Objects::nonNull)
                             .collect(groupingBy(TokenizedWord::getDocId));

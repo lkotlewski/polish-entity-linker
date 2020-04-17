@@ -24,6 +24,7 @@ public class ProgramRunner {
     private final ArticleToFileExtractor articleToFileExtractor;
     private final TestTrainSetsPreparator testTrainSetsPreparator;
     private final CategoriesProcessor categoriesProcessor;
+    private final TuningDatasetPreparator tuningDatasetPreparator;
 
 
     private Map<ProgramOption, Runnable> actions;
@@ -42,8 +43,9 @@ public class ProgramRunner {
         actions.put(ProgramOption.PROCESS_CORPUS, corpusProcessor::processFile);
         actions.put(ProgramOption.EXTRACT_ARTICLES, articleToFileExtractor::processFile);
         actions.put(ProgramOption.PREPARE_TRAIN_TEST, testTrainSetsPreparator::processDirectory);
-        actions.put(ProgramOption.LINK_ENTITIES, entityLinker::linkEntities);
+        actions.put(ProgramOption.PREPARE_TUNE_DATASET, tuningDatasetPreparator::prepareDataset);
         actions.put(ProgramOption.PROCESS_CATEGORIES, categoriesProcessor::processCategoriesStructure);
+        actions.put(ProgramOption.LINK_ENTITIES, entityLinker::linkEntities);
     }
 
     public void run() {
