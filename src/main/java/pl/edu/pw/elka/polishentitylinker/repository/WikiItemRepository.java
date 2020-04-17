@@ -1,5 +1,6 @@
 package pl.edu.pw.elka.polishentitylinker.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -39,4 +40,22 @@ public interface WikiItemRepository extends CrudRepository<WikiItemEntity, Strin
     @Query(value = "select * from wiki_item where article_length is not null and page_type = 0 order by article_length desc limit ?1",
             nativeQuery = true)
     List<WikiItemEntity> findLongestArticles(int limit);
+
+    @Query(value = "select * from wiki_item_instance_of left join wiki_item wi on wiki_item_instance_of.wiki_item_id " +
+            "= wi.id where instance_of_id = ?1 order by wi.id",
+            nativeQuery = true)
+    List<WikiItemEntity> findByInstanceOfIsContaining(String categoryId, Pageable pageable);
+
+    @Query(value = "select * from wiki_item_subclass_of left join wiki_item wi on wiki_item_subclass_of.wiki_item_id " +
+            "= wi.id where subclass_of_id = ?1 order by wi.id",
+            nativeQuery = true)
+    List<WikiItemEntity> findBySubclassOfIsContaining(String categoryId, Pageable pageable);
+
+    @Query(value = "select count(*) from wiki_item_instance_of where instance_of_id = ?1",
+            nativeQuery = true)
+    Integer countAllByInstanceOfIsContaining(String categoryId);
+
+    @Query(value = "select count(*) from wiki_item_subclass_of where subclass_of_id = ?1",
+            nativeQuery = true)
+    Integer countAllBySubclassOfIsContaining(String categoryId);
 }

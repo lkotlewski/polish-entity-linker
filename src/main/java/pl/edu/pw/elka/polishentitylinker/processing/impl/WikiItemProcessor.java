@@ -29,7 +29,7 @@ public class WikiItemProcessor extends LineFileProcessor {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             WikiItem wikiItem = objectMapper.readValue(line, WikiItem.class);
-            if (wikiItem.getLabelPl() != null || wikiItem.getTitlePl() != null) {
+            if (wikiItem.getLabelPl() != null || wikiItem.getTitlePl() != null || wikiItem.getLabelEng() != null) {
                 wikiItemService.add(wikiItem);
             }
         } catch (IOException e) {

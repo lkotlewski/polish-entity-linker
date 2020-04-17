@@ -19,7 +19,7 @@ public class WikiItemEntity {
 
     private String labelPl;
 
-    @Column(unique=true)
+    @Column(unique = true)
     private String titlePl;
 
     @ManyToMany(cascade = CascadeType.PERSIST)
@@ -28,10 +28,10 @@ public class WikiItemEntity {
     @ManyToMany(cascade = CascadeType.PERSIST)
     private List<WikiItemEntity> subclassOf;
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
-    private List<WikiItemEntity> rootParentCategories;
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    private WikiItemEntity rootCategory;
 
-    @Column(unique=true)
+    @Column(unique = true)
     private Integer pageId;
 
     @Enumerated

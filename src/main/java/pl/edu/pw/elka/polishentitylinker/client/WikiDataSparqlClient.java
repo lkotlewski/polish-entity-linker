@@ -35,14 +35,14 @@ public class WikiDataSparqlClient {
                     "schema:about ?item.}";
     private static final String SUBCLASSES_QUERY_PATTERN = "SELECT ?item WHERE { ?item wdt:P279 wd:%s.}";
 
-    private static final String INSTANCES_FILENAME_PATTERN = "%s_instances.tsv";
-    private static final String SUBCLASSES_FILENAME_PATTERN = "%s_subclasses.tsv";
-
     private static final String FIRST_LINE_REGEX = "item\r\n";
     private static final String LINE_SUFFIX = "\r\n";
     private static final String ENTITY_BASE_URL = "http://www\\.wikidata\\.org/entity/";
 
     private static final String STACK_TRACE_SUFFIX = ")\n";
+
+    public static final String INSTANCES_FILENAME_PATTERN = "%s_instances.tsv";
+    public static final String SUBCLASSES_FILENAME_PATTERN = "%s_subclasses.tsv";
 
 
     @Value("${categories.files.directory}")
