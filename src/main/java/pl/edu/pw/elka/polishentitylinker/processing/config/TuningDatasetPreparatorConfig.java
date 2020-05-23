@@ -16,5 +16,5 @@ public class TuningDatasetPreparatorConfig {
     private String articlesDirectory;
     private int articlePartSize;
     private int trainArticleMinLength;
-    private int trainArticlesCount;
+    private int trainExamplesCount;
 }

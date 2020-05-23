@@ -59,7 +59,7 @@ public interface WikiItemRepository extends CrudRepository<WikiItemEntity, Strin
             nativeQuery = true)
     Integer countAllBySubclassOfIsContaining(String categoryId);
 
-    @Query(value = "select * from wiki_item where article_length > ?1 and page_type = 0  limit ?2",
+    @Query(value = "select * from wiki_item where article_length > ?1 order by id",
             nativeQuery = true)
-    List<WikiItemEntity> findWithHigherArticleLength(int minLength, int limit);
+    List<WikiItemEntity> findWithHigherArticleLength(int minLength, Pageable pageable);
 }
