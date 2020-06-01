@@ -21,6 +21,7 @@ public class ProgramRunner {
     private final CorpusSanitizer corpusSanitizer;
     private final DirectoryCorpusSanitizer directoryCorpusSanitizer;
     private final CorpusProcessor corpusProcessor;
+    private final DividedCorpusProcessor dividedCorpusProcessor;
     private final ArticleToFileExtractor articleToFileExtractor;
     private final TestTrainSetsPreparator testTrainSetsPreparator;
     private final CategoriesProcessor categoriesProcessor;
@@ -41,6 +42,7 @@ public class ProgramRunner {
         actions.put(ProgramOption.SANITIZE_CORPUS, corpusSanitizer::processFile);
         actions.put(ProgramOption.SANITIZE_DIRECTORY_CORPUS, directoryCorpusSanitizer::processDirectory);
         actions.put(ProgramOption.PROCESS_CORPUS, corpusProcessor::processFile);
+        actions.put(ProgramOption.MERGE_DIVIDED_CORPUS, dividedCorpusProcessor::processFile);
         actions.put(ProgramOption.EXTRACT_ARTICLES, articleToFileExtractor::processFile);
         actions.put(ProgramOption.PREPARE_TRAIN_TEST, testTrainSetsPreparator::processDirectory);
         actions.put(ProgramOption.PREPARE_TUNE_DATASET, tuningDatasetPreparator::prepareDataset);

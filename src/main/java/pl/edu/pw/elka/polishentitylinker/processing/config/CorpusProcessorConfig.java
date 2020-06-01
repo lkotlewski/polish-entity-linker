@@ -20,4 +20,6 @@ public class CorpusProcessorConfig {
     boolean evalArticlesLength;
 
     boolean extractAliases;
+
+    boolean logProcessedDocsNumber;
 }

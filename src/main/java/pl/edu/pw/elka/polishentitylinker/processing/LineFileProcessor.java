@@ -13,10 +13,12 @@ public abstract class LineFileProcessor implements FileProcessor {
     protected abstract void processLine(String line);
 
     protected void processLineByLine(String path) {
-        Path path1 = Paths.get(path);
+        processLineByLine(Paths.get(path));
+    }
 
+    protected void processLineByLine(Path path) {
         try {
-            Files.lines(path1).forEach(this::processLine);
+            Files.lines(path).forEach(this::processLine);
         } catch (IOException e) {
             log.error("", e);
         }

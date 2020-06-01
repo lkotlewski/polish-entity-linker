@@ -39,6 +39,7 @@ public class CorpusProcessor extends LineFileProcessor {
     private BufferedBatchProcessor<WikiItemEntity> articlesLengthSaver;
     private Map<Integer, Integer> articlesLength = new HashMap<>();
     private Integer lastDocId;
+    private Integer processedCount = 0;
 
     @Override
     public void processFile() {
@@ -82,16 +83,21 @@ public class CorpusProcessor extends LineFileProcessor {
     }
 
     private void processDocId(TokenizedWord tokenizedWord) {
-        if (config.isEvalArticlesLength()) {
+        if (config.isEvalArticlesLength() || config.isLogProcessedDocsNumber()) {
             Integer docId = tokenizedWord.getDocId();
-            if (articlesLength.containsKey(docId)) {
-                articlesLength.put(docId, articlesLength.get(docId) + 1);
-            } else {
-                articlesLength.put(docId, 1);
+            if(config.isEvalArticlesLength()) {
+                if (articlesLength.containsKey(docId)) {
+                    articlesLength.put(docId, articlesLength.get(docId) + 1);
+                } else {
+                    articlesLength.put(docId, 1);
+                }
             }
-            if (!docId.equals(lastDocId)) {
-                log.info("processing {}", docId);
-                lastDocId = docId;
+            if(config.isLogProcessedDocsNumber()) {
+                if (!docId.equals(lastDocId)) {
+                    processedCount++;
+                    log.info("processed {} docs", processedCount);
+                    lastDocId = docId;
+                }
             }
         }
     }
@@ -127,7 +133,6 @@ public class CorpusProcessor extends LineFileProcessor {
         } else {
             entitiesMentions.put(entityId, 1);
         }
-        log.info("{} mentions count incremented", entityId);
     }
 
     private void addAlias(String entityId, String alias) {
@@ -139,7 +144,6 @@ public class CorpusProcessor extends LineFileProcessor {
         }
         aliases.add(alias);
         entitiesAliases.put(entityId, aliases);
-        log.info("{} alias added", entityId);
     }
 
 
@@ -179,6 +183,4 @@ public class CorpusProcessor extends LineFileProcessor {
         });
         articlesLengthSaver.processRest();
     }
-
-
 }
