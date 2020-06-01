@@ -23,4 +23,8 @@ public class NamedEntity {
     public String getEntityId() {
         return entitySpan.get(0).getEntityId();
     }
+
+    public Integer getPageId() {
+        return entitySpan.get(0).getDocId();
+    }
 }

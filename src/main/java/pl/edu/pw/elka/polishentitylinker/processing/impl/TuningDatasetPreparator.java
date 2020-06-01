@@ -7,28 +7,26 @@ import org.springframework.stereotype.Component;
 import pl.edu.pw.elka.polishentitylinker.core.TaggedTextIterator;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
-import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
 import pl.edu.pw.elka.polishentitylinker.processing.config.TuningDatasetPreparatorConfig;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
 import pl.edu.pw.elka.polishentitylinker.service.Searcher;
-import pl.edu.pw.elka.polishentitylinker.utils.TokenizedTextUtils;
-import pl.edu.pw.elka.polishentitylinker.utils.TsvLineParser;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static pl.edu.pw.elka.polishentitylinker.utils.BertIntegrationUtils.prepareExampleForClassifier;
+import static pl.edu.pw.elka.polishentitylinker.utils.FileUtils.appendToFile;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class TuningDatasetPreparator {
-
-    private static final String LINE_PATTERN = "%s\t%d\t%s\t%d\t%s\t%s\t%b\n";
 
     private final TuningDatasetPreparatorConfig config;
     private final WikiItemRepository wikiItemRepository;
@@ -47,19 +45,18 @@ public class TuningDatasetPreparator {
         outFilepath = Paths.get(config.getOutFilepath());
     }
 
-
     public void prepareDataset() {
         taggedTextIterator.processFile(config.getInFilepath());
 
         int i = 0;
-        boolean allLengthEnoughArticlesProceed = false;
+        boolean allLongEnoughArticlesProceeded = false;
 
-        while (examplesCount < config.getTrainExamplesCount() || allLengthEnoughArticlesProceed) {
+        while (examplesCount < config.getTrainExamplesCount() || allLongEnoughArticlesProceeded) {
             int pageSize = 500;
             List<WikiItemEntity> contextWikiItems = wikiItemRepository.findWithHigherArticleLength(
                     config.getTrainArticleMinLength(), PageRequest.of(i, pageSize));
             prepareExamplesPart(contextWikiItems);
-            allLengthEnoughArticlesProceed = contextWikiItems.isEmpty();
+            allLongEnoughArticlesProceeded = contextWikiItems.isEmpty();
             i++;
         }
         log.info("Process finished");
@@ -86,8 +83,12 @@ public class TuningDatasetPreparator {
 
                 if (!falsePositiveCandidates.isEmpty()) {
                     WikiItemEntity falsePositiveCandidate = falsePositiveCandidates.get(0);
-                    writeExampleToFile(outFilepath, prepareTruePositiveExample(contextWikiItem, targetNamedEntity, targetWikiItem));
-                    writeExampleToFile(outFilepath, prepareFalsePositiveExample(contextWikiItem, targetNamedEntity, falsePositiveCandidate));
+                    appendToFile(outFilepath, prepareExampleForClassifier(contextWikiItem.getPageId(),
+                            targetNamedEntity, targetWikiItem, config.getArticlePartSize(),
+                            config.getArticlesDirectory()));
+                    appendToFile(outFilepath, prepareExampleForClassifier(contextWikiItem.getPageId(),
+                            targetNamedEntity, falsePositiveCandidate, config.getArticlePartSize(),
+                            config.getArticlesDirectory()));
                     examplesCount += 2;
                     updateDistributionsStats(targetWikiItem, falsePositiveCandidate);
                     log.info("Examples count: {}/{}", examplesCount, config.getTrainExamplesCount());
@@ -111,37 +112,6 @@ public class TuningDatasetPreparator {
         return distribution.get(rootCategoryId) == null ? 1 : positiveExamplesDistribution.get(rootCategoryId) + 1;
     }
 
-    private String prepareTruePositiveExample(WikiItemEntity contextWikiItem, NamedEntity targetNamedEntity, WikiItemEntity targetWikiItem) {
-        return prepareDatasetLine(
-                targetNamedEntity.toOriginalForm(),
-                contextWikiItem.getPageId(),
-                targetNamedEntity.getEntityId(),
-                targetWikiItem.getPageId(),
-                targetNamedEntity.getContextAsString(),
-                getArticleBeginningByPageId(targetWikiItem.getPageId()),
-                true
-        );
-    }
-
-
-    private String prepareFalsePositiveExample(WikiItemEntity contextWikiItem, NamedEntity targetNamedEntity, WikiItemEntity falsePositiveCandidate) {
-        return prepareDatasetLine(
-                targetNamedEntity.toOriginalForm(),
-                contextWikiItem.getPageId(),
-                targetNamedEntity.getEntityId(),
-                falsePositiveCandidate.getPageId(),
-                targetNamedEntity.getContextAsString(),
-                getArticleBeginningByPageId(falsePositiveCandidate.getPageId()),
-                false
-        );
-    }
-
-    private String prepareDatasetLine(String originalForm, Integer contextArticleId, String targetWikiItemId, Integer comparedArticleId,
-                                      String context, String compared, boolean positiveExample) {
-        return String.format(LINE_PATTERN, originalForm, contextArticleId, targetWikiItemId, comparedArticleId,
-                context, compared, positiveExample);
-    }
-
     private List<WikiItemEntity> getFalsePositiveCandidates(NamedEntity namedEntity) {
         return searcher.findCandidates(namedEntity)
                 .stream()
@@ -151,38 +121,15 @@ public class TuningDatasetPreparator {
 
     private NamedEntity getTargetNamedEntity() {
         List<NamedEntity> namedEntities = taggedTextIterator.getNamedEntities();
-        if (namedEntities.size() > 0) {
+        if (!namedEntities.isEmpty()) {
             int middleIdx = namedEntities.size() / 2;
             return namedEntities.get(middleIdx);
         }
         return null;
     }
 
-    private String getArticleBeginningByPageId(Integer pageId) {
-        Path path = getArticlePath(pageId);
-        List<TokenizedWord> collect = new ArrayList<>();
-        try {
-            collect = Files.lines(path)
-                    .map(TsvLineParser::parseTokenizedWord)
-                    .filter(Objects::nonNull)
-                    .limit(config.getArticlePartSize())
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-        return TokenizedTextUtils.spanToOriginalForm(collect);
-    }
-
     private Path getArticlePath(Integer pageId) {
         return Paths.get(config.getArticlesDirectory(), String.format("%d.tsv", pageId));
-    }
-
-    private void writeExampleToFile(Path outFilepath, String line) {
-        try {
-            Files.write(outFilepath, line.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
     }
 
     private void logDistributionsStats() {
