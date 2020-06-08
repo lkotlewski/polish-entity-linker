@@ -9,7 +9,7 @@ import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
 import pl.edu.pw.elka.polishentitylinker.processing.config.TuningDatasetPreparatorConfig;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
-import pl.edu.pw.elka.polishentitylinker.service.Searcher;
+import pl.edu.pw.elka.polishentitylinker.service.searcher.Searcher;
 
 import javax.annotation.PostConstruct;
 import java.nio.file.Path;

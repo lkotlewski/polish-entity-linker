@@ -1,4 +1,4 @@
-package pl.edu.pw.elka.polishentitylinker.service;
+package pl.edu.pw.elka.polishentitylinker.service.searcher;
 
 import org.springframework.stereotype.Service;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;

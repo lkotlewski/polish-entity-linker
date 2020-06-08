@@ -1,4 +1,4 @@
-package pl.edu.pw.elka.polishentitylinker.service;
+package pl.edu.pw.elka.polishentitylinker.service.wiki;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

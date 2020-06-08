@@ -1,17 +1,21 @@
-package pl.edu.pw.elka.polishentitylinker.service.impl;
+package pl.edu.pw.elka.polishentitylinker.service.disambiguator;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
 import pl.edu.pw.elka.polishentitylinker.repository.RedirectPageRepository;
-import pl.edu.pw.elka.polishentitylinker.service.Disambiguator;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class NaiveDisambiguatorImpl implements Disambiguator {
+public class NaiveDisambiguator implements Disambiguator {
 
     private final RedirectPageRepository redirectPageRepository;
 
@@ -21,6 +25,20 @@ public class NaiveDisambiguatorImpl implements Disambiguator {
                 .stream()
                 .reduce((a, b) -> getRedirectCount(a) > getMentionsCount(b) ? a : b)
                 .orElse(null);
+    }
+
+    @Override
+    public List<WikiItemEntity> chooseAll(List<Pair<NamedEntity, List<WikiItemEntity>>> candidatesForMentions) {
+        List<WikiItemEntity> results = new ArrayList<>();
+        int candidatesForMentionsSize = candidatesForMentions.size();
+        AtomicInteger processedSize = new AtomicInteger(0);
+        candidatesForMentions.forEach(pair -> {
+            NamedEntity namedEntity = pair.getFirst();
+            List<WikiItemEntity> candidates = pair.getSecond();
+            results.add(choose(namedEntity, candidates));
+            log.info("{}/{} entities disambigutated", processedSize.incrementAndGet(), candidatesForMentionsSize);
+        });
+        return results;
     }
 
     private int getRedirectCount(WikiItemEntity a) {

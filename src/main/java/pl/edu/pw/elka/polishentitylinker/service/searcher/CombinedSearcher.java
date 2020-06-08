@@ -1,10 +1,9 @@
-package pl.edu.pw.elka.polishentitylinker.service.impl;
+package pl.edu.pw.elka.polishentitylinker.service.searcher;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
-import pl.edu.pw.elka.polishentitylinker.service.Searcher;
 
 import java.util.List;
 

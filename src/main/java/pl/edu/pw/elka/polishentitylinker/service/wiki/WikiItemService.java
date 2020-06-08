@@ -1,4 +1,4 @@
-package pl.edu.pw.elka.polishentitylinker.service;
+package pl.edu.pw.elka.polishentitylinker.service.wiki;
 
 import pl.edu.pw.elka.polishentitylinker.model.json.WikiItem;
 

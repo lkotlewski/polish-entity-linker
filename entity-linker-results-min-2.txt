@@ -1,0 +1,24 @@
+Q189859: Q189859, turbina parowa, Turbina parowa
+Q189859: Q189859, turbina parowa, Turbina parowa
+Q189859: Q189859, turbina parowa, Turbina parowa
+Q189859: Q189859, turbina parowa, Turbina parowa
+Q189859: Q189859, turbina parowa, Turbina parowa
+Q189859: Q189859, turbina parowa, Turbina parowa
+Q189859: Q189859, turbina parowa, Turbina parowa
+Q309383: Q309383, Wał (maszynoznawstwo), Wał (maszynoznawstwo)
+Q1353262: Q1353262, rdzeń reaktora jądrowego, Rdzeń reaktora jądrowego
+Q626299: Q626299, Psi (jednostka), Psi (jednostka)
+Q633556: Q986681, Okręty podwodne typu Virginia, Virginia (Minnesota)
+Q189124: Q189124, wymiennik ciepła, Wymiennik ciepła
+Q189859: Q189859, turbina parowa, Turbina parowa
+Q309383: Q309383, Wał (maszynoznawstwo), Wał (maszynoznawstwo)
+Q1353262: Q1353262, rdzeń reaktora jądrowego, Rdzeń reaktora jądrowego
+Q626299: Q626299, Psi (jednostka), Psi (jednostka)
+Q633556: Q986681, Okręty podwodne typu Virginia, Virginia (Minnesota)
+Q189124: Q189124, wymiennik ciepła, Wymiennik ciepła
+Q189859: Q189859, turbina parowa, Turbina parowa
+Q309383: Q309383, Wał (maszynoznawstwo), Wał (maszynoznawstwo)
+Q1353262: Q1353262, rdzeń reaktora jądrowego, Rdzeń reaktora jądrowego
+Q626299: Q144, Psi (jednostka), Pies domowy
+Q633556: Q1370, Okręty podwodne typu Virginia, Wirginia
+Q189124: Q189124, wymiennik ciepła, Wymiennik ciepła

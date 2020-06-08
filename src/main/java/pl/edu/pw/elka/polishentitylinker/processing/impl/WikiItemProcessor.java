@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.pw.elka.polishentitylinker.model.json.WikiItem;
 import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
 import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
-import pl.edu.pw.elka.polishentitylinker.service.WikiItemService;
+import pl.edu.pw.elka.polishentitylinker.service.wiki.WikiItemService;
 
 import java.io.IOException;
 
