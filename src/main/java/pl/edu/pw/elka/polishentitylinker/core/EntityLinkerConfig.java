@@ -14,4 +14,7 @@ public class EntityLinkerConfig {
 
     private String testFilepath;
     private String outFilepath;
+    private String candidatesFilepath;
+    private boolean doSearch;
+    private boolean doDisambiguate;
 }

@@ -21,4 +21,8 @@ public class BertDisambiguatorConfig {
     private String gsErrorDir;
     private String articlesDirectory;
     private int articlePartSize;
+    private boolean useReadyPredictions;
+    private String predictionsPath;
+    private boolean usePopularity;
+    private float popularityRate;
 }

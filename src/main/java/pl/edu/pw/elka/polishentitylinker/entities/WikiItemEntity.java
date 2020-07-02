@@ -1,5 +1,6 @@
 package pl.edu.pw.elka.polishentitylinker.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import pl.edu.pw.elka.polishentitylinker.model.csv.PageType;
@@ -22,9 +23,11 @@ public class WikiItemEntity {
     @Column(unique = true)
     private String titlePl;
 
+    @JsonIgnore
     @ManyToMany(cascade = CascadeType.PERSIST)
     private List<WikiItemEntity> instanceOf;
 
+    @JsonIgnore
     @ManyToMany(cascade = CascadeType.PERSIST)
     private List<WikiItemEntity> subclassOf;
 

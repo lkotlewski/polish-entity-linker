@@ -9,6 +9,7 @@ import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
 import pl.edu.pw.elka.polishentitylinker.utils.CandidateSearchUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Primary
@@ -19,6 +20,9 @@ public class ExactMatchSearcher implements Searcher {
 
     @Override
     public List<WikiItemEntity> findCandidates(NamedEntity namedEntity) {
-        return CandidateSearchUtils.getDistinctRegularArticles(wikiItemRepository.findAllByOriginalFormFromAliases(namedEntity.toOriginalForm()));
+        return CandidateSearchUtils.getDistinctRegularArticles(wikiItemRepository.findAllByOriginalFormFromAliases(namedEntity.toOriginalForm()))
+                .stream()
+                .filter(wikiItemEntity -> wikiItemEntity.getRootCategory() != null)
+                .collect(Collectors.toList());
     }
 }

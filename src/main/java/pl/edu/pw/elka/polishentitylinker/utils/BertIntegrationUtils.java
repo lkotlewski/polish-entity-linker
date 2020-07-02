@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -23,7 +22,13 @@ import java.util.stream.StreamSupport;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BertIntegrationUtils {
 
-    private static final String LINE_PATTERN = "%s\t%d\t%s\t%d\t%s\t%s\t%b\n";
+    private static final String LINE_PATTERN = "%s\t%d\t%s\t%s\t%s\t%s\t%b\n";
+    private static final String BEGINING_TO_IGNORE = "!-- ** DO EDYTORÓW ** NOTE TO EDITORS ** " +
+            "Temat tego artykułu w niektórych kwestiach jest kontrowersyjny i może prowadzić do sporów. " +
+            "The topic is controversial on some issues and can lead to disputes. Zanim zaczniesz wprowadzać zmiany w treści, najlepiej przedyskutuj to najpierw na stronie dyskusji. " +
+            "Before you make changes in the content it is best to discuss it first on the talk page. " +
+            "Proszę nie usuwać tego tekstu – jest to komentarz, który nie jest widoczny w podglądzie. " +
+            "Please do not remove this text – it’s a comment which is not visible in preview. --";
 
     public static boolean exists(String projectId, String bucketName, String gsFilepath) {
         return !listObjectsWithPrefix(projectId, bucketName, gsFilepath).isEmpty();
@@ -66,7 +71,7 @@ public class BertIntegrationUtils {
                 targetNamedEntity.toOriginalForm(),
                 contextPageId,
                 targetNamedEntity.getEntityId(),
-                candidateWikiItem.getPageId(),
+                candidateWikiItem.getId(),
                 targetNamedEntity.getContextAsString(),
                 getArticleBeginningByPageId(candidateWikiItem.getPageId(), articlePartSize, articlesDirectory),
                 targetNamedEntity.getEntityId().equals(candidateWikiItem.getId())
@@ -74,34 +79,29 @@ public class BertIntegrationUtils {
     }
 
     private static String prepareDatasetLine(String originalForm, Integer contextArticleId, String targetWikiItemId,
-                                             Integer comparedArticleId, String context, String compared, boolean positiveExample) {
-        return String.format(LINE_PATTERN, originalForm, contextArticleId, targetWikiItemId, comparedArticleId,
+                                             String comparedWikiItemId, String context, String compared, boolean positiveExample) {
+        return String.format(LINE_PATTERN, originalForm, contextArticleId, targetWikiItemId, comparedWikiItemId,
                 context, compared, positiveExample);
     }
 
     private static String getArticleBeginningByPageId(Integer pageId, int articlePartSize, String articlesDirectory) {
-        Path path = getArticlePath(pageId, articlesDirectory);
-        List<TokenizedWord> collect = new ArrayList<>();
         try {
-            collect = Files.lines(path)
-                    .map(TsvLineParser::parseTokenizedWord)
-                    .filter(Objects::nonNull)
-                    .limit(articlePartSize)
-                    .collect(Collectors.toList());
+            Path path = getArticlePath(pageId, articlesDirectory);
+            if (path.toFile().exists()) {
+                List<TokenizedWord> collect = Files.lines(path)
+                        .map(TsvLineParser::parseTokenizedWord)
+                        .filter(Objects::nonNull)
+                        .limit(articlePartSize)
+                        .collect(Collectors.toList());
+                return TokenizedTextUtils.spanToOriginalForm(collect);
+            }
         } catch (IOException e) {
             log.error(e.getMessage());
         }
-        return TokenizedTextUtils.spanToOriginalForm(collect);
+        return "-";
     }
 
     private static Path getArticlePath(Integer pageId, String articlesDirectory) {
         return Paths.get(articlesDirectory, String.format("%d.tsv", pageId));
     }
-
-    public static void main(String[] args) {
-//        listObjects("durable-ripsaw-267120", "entity-linkiking-bucket");
-        listObjectsWithPrefix("durable-ripsaw-267120", "entity-linkiking-bucket", "results/");
-//        downloadObject("durable-ripsaw-267120", "entity-linkiking-bucket", "results/eval_results.txt", Paths.get("eval_results.txt"));
-    }
-
 }

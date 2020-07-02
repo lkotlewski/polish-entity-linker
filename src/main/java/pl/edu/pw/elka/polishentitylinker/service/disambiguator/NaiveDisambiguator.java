@@ -2,28 +2,27 @@ package pl.edu.pw.elka.polishentitylinker.service.disambiguator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
-import pl.edu.pw.elka.polishentitylinker.repository.RedirectPageRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Primary
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class NaiveDisambiguator implements Disambiguator {
 
-    private final RedirectPageRepository redirectPageRepository;
-
     @Override
     public WikiItemEntity choose(NamedEntity namedEntity, List<WikiItemEntity> candidates) {
         return candidates
                 .stream()
-                .reduce((a, b) -> getRedirectCount(a) > getMentionsCount(b) ? a : b)
+                .reduce((a, b) -> getMentionsCount(a) > getMentionsCount(b) ? a : b)
                 .orElse(null);
     }
 
@@ -39,10 +38,6 @@ public class NaiveDisambiguator implements Disambiguator {
             log.info("{}/{} entities disambigutated", processedSize.incrementAndGet(), candidatesForMentionsSize);
         });
         return results;
-    }
-
-    private int getRedirectCount(WikiItemEntity a) {
-        return redirectPageRepository.findAllByTarget(a).size();
     }
 
     private int getMentionsCount(WikiItemEntity wikiItemEntity) {
