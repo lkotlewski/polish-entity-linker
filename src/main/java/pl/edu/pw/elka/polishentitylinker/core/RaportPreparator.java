@@ -29,17 +29,36 @@ public class RaportPreparator {
                     List<String> candidatesIds = c.getSecond().stream().map(WikiItemEntity::getId).collect(Collectors.toList());
                     return candidatesIds.contains(c.getFirst().getEntityId()) ? 1 : 0;
                 }).sum();
+        int withOnlyGoodCandidateCount = candidatesForMentions.stream()
+                .mapToInt(c -> {
+                    List<String> candidatesIds = c.getSecond().stream().map(WikiItemEntity::getId).collect(Collectors.toList());
+                    return candidatesIds.size() == 1 && candidatesIds.contains(c.getFirst().getEntityId()) ? 1 : 0;
+                }).sum();
+        int passedToDisambiguateCount = candidatesForMentions.stream()
+                .mapToInt(c -> {
+                    List<String> candidatesIds = c.getSecond().stream().map(WikiItemEntity::getId).collect(Collectors.toList());
+                    return candidatesIds.size() > 1 && candidatesIds.contains(c.getFirst().getEntityId()) ? 1 : 0;
+                }).sum();
+        int passedToDisambiguateSum = candidatesForMentions.stream()
+                .mapToInt(c -> {
+                    List<String> candidatesIds = c.getSecond().stream().map(WikiItemEntity::getId).collect(Collectors.toList());
+                    return candidatesIds.size() > 1 && candidatesIds.contains(c.getFirst().getEntityId()) ? candidatesIds.size() : 0;
+                }).sum();
         int allCandidatesSum = candidatesForMentions.stream()
                 .mapToInt(c -> c.getSecond().size()).sum();
 
-        float avCandidatesCount = allCandidatesSum / (float) namedEntitiesCount;
+        float meanCandidatesCount = allCandidatesSum / (float) namedEntitiesCount;
+        float meanPassedCandidatesCount = passedToDisambiguateSum / (float) passedToDisambiguateCount;
         float precision = withGoodCandidateCount / (float) notEmptyCandidatesSetsCount;
         float recall = withGoodCandidateCount / (float) namedEntitiesCount;
+        float clearance = withOnlyGoodCandidateCount / (float) namedEntitiesCount;
 
         log.info("###Searcher###");
-        log.info(String.format("%d/%d, Mean candidate count: %.4f", allCandidatesSum, namedEntitiesCount, avCandidatesCount));
+//        log.info(String.format("%d/%d, Mean candidate count: %.4f", allCandidatesSum, namedEntitiesCount, meanCandidatesCount));
+        log.info(String.format("%d/%d, Mean candidate passed count: %.4f", passedToDisambiguateSum, passedToDisambiguateCount, meanPassedCandidatesCount));
         log.info(String.format("%d/%d, Precision: %.4f", withGoodCandidateCount, notEmptyCandidatesSetsCount, precision));
         log.info(String.format("%d/%d, Recall: %.4f", withGoodCandidateCount, namedEntitiesCount, recall));
+        log.info(String.format("%d/%d, Clearance: %.4f", withOnlyGoodCandidateCount, namedEntitiesCount, clearance));
 
     }
 

@@ -7,8 +7,12 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
+import pl.edu.pw.elka.polishentitylinker.model.csv.PageType;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
 import pl.edu.pw.elka.polishentitylinker.service.disambiguator.Disambiguator;
+import pl.edu.pw.elka.polishentitylinker.service.searcher.PartExactMatchSearcher;
+import pl.edu.pw.elka.polishentitylinker.service.searcher.PartLikeLemmaMatchSearcher;
+import pl.edu.pw.elka.polishentitylinker.service.searcher.PartLikeMatchSearcher;
 import pl.edu.pw.elka.polishentitylinker.service.searcher.Searcher;
 
 import java.io.IOException;
@@ -29,6 +33,9 @@ public class EntityLinker {
 
     private final EntityLinkerConfig config;
     private final Searcher searcher;
+    private final PartExactMatchSearcher partExactMatchSearcher;
+    private final PartLikeMatchSearcher partLikeMatchSearcher;
+    private final PartLikeLemmaMatchSearcher partLikeLemmaMatchSearcher;
     private final Disambiguator disambiguator;
     private final WikiItemRepository wikiItemRepository;
     private final ObjectMapper objectMapper;
@@ -40,7 +47,9 @@ public class EntityLinker {
         Path candidatesFilepath = Paths.get(config.getCandidatesFilepath());
         taggedTextIterator.processFile(config.getTestFilepath());
         List<NamedEntity> namedEntities = taggedTextIterator.getNamedEntities();
-        filterByRootCategory(namedEntities);
+
+        filterByNotDisambiguationPage(namedEntities);
+
         log.info("{} entities to process", namedEntities.size());
         List<Pair<NamedEntity, List<WikiItemEntity>>> candidatesForMentions;
         if (config.isDoSearch()) {
@@ -49,7 +58,16 @@ public class EntityLinker {
         } else {
             candidatesForMentions = readSearcherResults(candidatesFilepath);
         }
+
+        List<Pair<NamedEntity, List<WikiItemEntity>>> emptyCandidates = candidatesForMentions.stream().filter(pair -> pair.getSecond().isEmpty()).collect(Collectors.toList());
+        List<Pair<NamedEntity, List<WikiItemEntity>>> containingNoGoodCandidate = candidatesForMentions.stream().filter(pair -> !pair.getSecond().isEmpty() && !containsGoodCandidate(pair.getSecond(), pair.getFirst())).collect(Collectors.toList());
+
+        if (config.isLimitSearchResults()) {
+            limitSearchResults(candidatesForMentions);
+        }
+
         if (config.isDoDisambiguate()) {
+            clearCandidatesContainingNoGood(candidatesForMentions);
             List<WikiItemEntity> chosenEntities = disambiguate(candidatesForMentions);
             List<NamedEntity> referenceEntities = candidatesForMentions.stream().map(Pair::getFirst).collect(Collectors.toList());
             if (chosenEntities.size() != referenceEntities.size()) {
@@ -62,6 +80,22 @@ public class EntityLinker {
         } else {
             evaluateSearcherResultsParams(candidatesForMentions);
         }
+    }
+
+    private void limitSearchResults(List<Pair<NamedEntity, List<WikiItemEntity>>> candidatesForMentions) {
+        candidatesForMentions.forEach(pair -> {
+            List<WikiItemEntity> limitedCandidates = pair.getSecond().stream()
+                    .sorted((a, b) -> getMentionsCount(b) - getMentionsCount(a))
+                    .limit(config.getSearchResultsLimit())
+                    .collect(Collectors.toList());
+            pair.getSecond().clear();
+            pair.getSecond().addAll(limitedCandidates);
+        });
+    }
+
+    private void clearCandidatesContainingNoGood(List<Pair<NamedEntity, List<WikiItemEntity>>> candidatesForMentions) {
+        candidatesForMentions.stream().filter(pair -> !pair.getSecond().isEmpty() && !containsGoodCandidate(pair.getSecond(), pair.getFirst()))
+                .forEach(pair -> pair.getSecond().clear());
     }
 
     private void saveSearcherResults(Path candidatesFilepath, List<Pair<NamedEntity, List<WikiItemEntity>>> candidatesForMentions) {
@@ -102,11 +136,22 @@ public class EntityLinker {
         return disambiguator.chooseAll(candidatesForMentions);
     }
 
-    private void filterByRootCategory(List<NamedEntity> namedEntities) {
+    private void filterByNotDisambiguationPage(List<NamedEntity> namedEntities) {
         namedEntities.removeIf(namedEntity -> {
                     Optional<WikiItemEntity> byId = wikiItemRepository.findById(namedEntity.getEntityId());
-                    return !byId.isPresent() || byId.get().getRootCategory() == null;
+                    return !byId.isPresent() || byId.get().getPageType() == PageType.DISAMBIGUATION;
                 }
         );
+    }
+
+    private boolean containsGoodCandidate(List<WikiItemEntity> candidates, NamedEntity target) {
+        return candidates.stream()
+                .map(WikiItemEntity::getId)
+                .collect(Collectors.toList())
+                .contains(target.getEntityId());
+    }
+
+    private int getMentionsCount(WikiItemEntity wikiItemEntity) {
+        return wikiItemEntity.getMentionsCount() == null ? 0 : wikiItemEntity.getMentionsCount();
     }
 }

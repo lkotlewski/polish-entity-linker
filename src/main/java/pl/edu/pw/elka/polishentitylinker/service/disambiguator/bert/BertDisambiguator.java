@@ -96,10 +96,14 @@ public class BertDisambiguator implements Disambiguator {
         candidatesForMentions.forEach(pair -> {
             NamedEntity namedEntity = pair.getFirst();
             List<WikiItemEntity> candidates = pair.getSecond();
-            candidates.forEach(candidate ->
-                    stringBuffer.append(BertIntegrationUtils.prepareExampleForClassifier(namedEntity.getPageId(),
-                            namedEntity, candidate, config.getArticlePartSize(), config.getArticlesDirectory()))
-            );
+            if (candidates.size() == 1) {
+                stringBuffer.append(BertIntegrationUtils.prepeareEmptyExample());
+            } else {
+                candidates.forEach(candidate ->
+                        stringBuffer.append(BertIntegrationUtils.prepareExampleForClassifier(namedEntity.getPageId(),
+                                namedEntity, candidate, config.getArticlePartSize(), config.getArticlesDirectory()))
+                );
+            }
             log.info("{}/{} entities prepared for bert processing", processedSize.incrementAndGet(), candidatesForMentionsSize);
         });
 

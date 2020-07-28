@@ -6,19 +6,17 @@ import org.springframework.stereotype.Service;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
-import pl.edu.pw.elka.polishentitylinker.utils.CandidateSearchUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ExactMatchSearcher implements Searcher {
+public class ExactMatchLemmatizedSearcher implements Searcher {
 
     private final WikiItemRepository wikiItemRepository;
 
     @Override
     public List<WikiItemEntity> findCandidates(NamedEntity namedEntity) {
-        return wikiItemRepository.findAllByOriginalFormFromAliases(namedEntity.toOriginalForm());
+        return wikiItemRepository.findAllByLemmaFormFromLemmatizedAliases(namedEntity.toLemmatizedForm());
     }
 }

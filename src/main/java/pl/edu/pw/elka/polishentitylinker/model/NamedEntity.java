@@ -2,6 +2,7 @@ package pl.edu.pw.elka.polishentitylinker.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedExtendedWord;
 import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
 import pl.edu.pw.elka.polishentitylinker.utils.TokenizedTextUtils;
 
@@ -16,6 +17,11 @@ public class NamedEntity {
     @JsonIgnore
     public String toOriginalForm() {
         return TokenizedTextUtils.spanToOriginalForm(entitySpan);
+    }
+
+    @JsonIgnore
+    public String toLemmatizedForm() {
+        return TokenizedTextUtils.spanToLemmatizedForm(entitySpan);
     }
 
     @JsonIgnore

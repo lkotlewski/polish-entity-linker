@@ -22,7 +22,7 @@ public class TsvLineParser {
             return TokenizedExtendedWord.extendedBuilder()
                     .docId(Integer.parseInt(parts.get(0)))
                     .token(parts.get(1))
-                    .lemma(parts.get(2))
+                    .lemma(getLemma(parts))
                     .precedingSpace("1".equals(parts.get(3)))
                     .morphosyntacticTags(parts.get(4))
                     .linkTitle(parts.get(5))
@@ -30,5 +30,14 @@ public class TsvLineParser {
                     .build();
         }
         return null;
+    }
+
+    private static String getLemma(List<String> parts) {
+        String lemma = parts.get(2);
+        List<String> lemmaParts = Arrays.asList(lemma.split(":"));
+        if(lemmaParts.isEmpty()) {
+            return "";
+        }
+        return lemmaParts.get(0);
     }
 }

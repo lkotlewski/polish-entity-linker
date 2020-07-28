@@ -35,6 +35,18 @@ public interface WikiItemRepository extends CrudRepository<WikiItemEntity, Strin
             nativeQuery = true)
     List<WikiItemEntity> findAllByOriginalFormFromAliases(@Param("originalForm") String originalForm);
 
+    @Query(value = "select * from wiki_item where id in (select distinct target_id from alias where label similar to CONCAT('%\\y',?1,'\\y%'))",
+            nativeQuery = true)
+    List<WikiItemEntity> findAllByOriginalFormSimilarFromAliases(@Param("originalForm") String originalForm);
+
+    @Query(value = "select * from wiki_item where id in (select distinct target_id from alias_lemmatized where label = ?1)",
+            nativeQuery = true)
+    List<WikiItemEntity> findAllByLemmaFormFromLemmatizedAliases(@Param("lemmaForm") String lemmaForm);
+
+    @Query(value = "select * from wiki_item where id in (select distinct target_id from alias_lemmatized where label similar to CONCAT('%\\y',?1,'\\y%'))",
+            nativeQuery = true)
+    List<WikiItemEntity> findAllByLemmatizedFormSimilarFromLemmatizedAliases(@Param("lemmaForm") String lemmaForm);
+
     Optional<WikiItemEntity> findByPageId(Integer pageId);
 
     @Query(value = "select * from wiki_item where article_length is not null and page_type = 0 order by article_length desc limit ?1",

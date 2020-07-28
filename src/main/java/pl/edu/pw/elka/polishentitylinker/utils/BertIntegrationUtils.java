@@ -78,6 +78,19 @@ public class BertIntegrationUtils {
         );
     }
 
+    public static String prepeareEmptyExample() {
+        return prepareDatasetLine(
+                "0",
+                0,
+                "0",
+                "0",
+                "0",
+                "0",
+                true
+        );
+    }
+
+
     private static String prepareDatasetLine(String originalForm, Integer contextArticleId, String targetWikiItemId,
                                              String comparedWikiItemId, String context, String compared, boolean positiveExample) {
         return String.format(LINE_PATTERN, originalForm, contextArticleId, targetWikiItemId, comparedWikiItemId,

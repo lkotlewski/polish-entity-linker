@@ -17,4 +17,6 @@ public class EntityLinkerConfig {
     private String candidatesFilepath;
     private boolean doSearch;
     private boolean doDisambiguate;
+    private boolean limitSearchResults;
+    private int searchResultsLimit;
 }
