@@ -21,5 +21,7 @@ public class CorpusProcessorConfig {
 
     boolean extractAliases;
 
+    boolean extractLemmatizedAliases;
+
     boolean logProcessedDocsNumber;
 }

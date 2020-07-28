@@ -4,12 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.elka.polishentitylinker.entities.AliasEntity;
+import pl.edu.pw.elka.polishentitylinker.entities.AliasLemmatizedEntity;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.csv.PageType;
+import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedExtendedWord;
 import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
 import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
 import pl.edu.pw.elka.polishentitylinker.processing.config.BatchProcessingConfig;
 import pl.edu.pw.elka.polishentitylinker.processing.config.CorpusProcessorConfig;
+import pl.edu.pw.elka.polishentitylinker.repository.AliasLemmatizedRepository;
 import pl.edu.pw.elka.polishentitylinker.repository.AliasRepository;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
 import pl.edu.pw.elka.polishentitylinker.utils.BufferedBatchProcessor;
@@ -25,15 +28,20 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class CorpusProcessor extends LineFileProcessor {
 
+    public static final String SURNAME_AND_NAME_WITH_COMMA_AND_POLISH_SIGNS_PATTERN = "[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+,\\s[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+";
     private final CorpusProcessorConfig config;
     private final BatchProcessingConfig batchProcessingConfig;
     private final WikiItemRepository wikiItemRepository;
     private final AliasRepository aliasRepository;
+    private final AliasLemmatizedRepository aliasLemmatizedRepository;
     private BufferedBatchProcessor<AliasEntity> aliasesSaver;
+    private BufferedBatchProcessor<AliasLemmatizedEntity> aliasesLemmatizedSaver;
 
     private Map<String, Integer> entitiesMentions = new HashMap<>();
     private Map<String, Set<String>> entitiesAliases = new HashMap<>();
-    private StringBuilder stringBuilder = new StringBuilder();
+    private Map<String, Set<String>> entitiesLemmatizedAliases = new HashMap<>();
+    private StringBuilder aliasStringBuilder = new StringBuilder();
+    private StringBuilder aliasLemmatizedStringBuilder = new StringBuilder();
     private String lastEntityId;
 
     private BufferedBatchProcessor<WikiItemEntity> articlesLengthSaver;
@@ -44,6 +52,7 @@ public class CorpusProcessor extends LineFileProcessor {
     @Override
     public void processFile() {
         aliasesSaver = new BufferedBatchProcessor<>(aliasRepository::saveAll, batchProcessingConfig.getSize());
+        aliasesLemmatizedSaver = new BufferedBatchProcessor<>(aliasLemmatizedRepository::saveAll, batchProcessingConfig.getSize());
         articlesLengthSaver = new BufferedBatchProcessor<>(wikiItemRepository::saveAll, batchProcessingConfig.getSize());
         processLineByLine(config.getFilepath());
         if (config.isCountMentions()) {
@@ -51,6 +60,9 @@ public class CorpusProcessor extends LineFileProcessor {
         }
         if (config.isExtractAliases()) {
             saveAliases();
+        }
+        if (config.isExtractLemmatizedAliases()) {
+            saveLemmatizedAliases();
         }
         if (config.isEvalArticlesLength()) {
             saveArticlesLengthResults();
@@ -67,7 +79,7 @@ public class CorpusProcessor extends LineFileProcessor {
     }
 
     private void processEntityId(TokenizedWord tokenizedWord) {
-        if(config.isCountMentions() || config.isExtractAliases()) {
+        if (config.isCountMentions() || config.isExtractAliases() || config.isExtractLemmatizedAliases()) {
             String entityId = tokenizedWord.getEntityId();
             if (isNamedEntity(lastEntityId) && !isContinuation(entityId)) {
                 handleEntitySpanEnd();
@@ -76,7 +88,10 @@ public class CorpusProcessor extends LineFileProcessor {
                 if (isContinuation(entityId)) {
                     appendSpaceIfPreceded(tokenizedWord);
                 }
-                stringBuilder.append(tokenizedWord.getToken());
+                aliasStringBuilder.append(tokenizedWord.getToken());
+                if (tokenizedWord instanceof TokenizedExtendedWord) {
+                    aliasLemmatizedStringBuilder.append(((TokenizedExtendedWord) tokenizedWord).getLemma());
+                }
             }
             lastEntityId = entityId;
         }
@@ -85,14 +100,14 @@ public class CorpusProcessor extends LineFileProcessor {
     private void processDocId(TokenizedWord tokenizedWord) {
         if (config.isEvalArticlesLength() || config.isLogProcessedDocsNumber()) {
             Integer docId = tokenizedWord.getDocId();
-            if(config.isEvalArticlesLength()) {
+            if (config.isEvalArticlesLength()) {
                 if (articlesLength.containsKey(docId)) {
                     articlesLength.put(docId, articlesLength.get(docId) + 1);
                 } else {
                     articlesLength.put(docId, 1);
                 }
             }
-            if(config.isLogProcessedDocsNumber()) {
+            if (config.isLogProcessedDocsNumber()) {
                 if (!docId.equals(lastDocId)) {
                     processedCount++;
                     log.info("processed {} docs", processedCount);
@@ -113,7 +128,8 @@ public class CorpusProcessor extends LineFileProcessor {
 
     private void appendSpaceIfPreceded(TokenizedWord tokenizedWord) {
         if (tokenizedWord.isPrecedingSpace()) {
-            stringBuilder.append(" ");
+            aliasStringBuilder.append(" ");
+            aliasLemmatizedStringBuilder.append(" ");
         }
     }
 
@@ -122,9 +138,13 @@ public class CorpusProcessor extends LineFileProcessor {
             incrementMentionsCount(lastEntityId);
         }
         if (config.isExtractAliases()) {
-            addAlias(lastEntityId, stringBuilder.toString());
+            addAlias(lastEntityId, aliasStringBuilder.toString());
         }
-        stringBuilder.setLength(0);
+        if (config.isExtractLemmatizedAliases()) {
+            addLemmatizedAlias(lastEntityId, aliasLemmatizedStringBuilder.toString());
+        }
+        aliasStringBuilder.setLength(0);
+        aliasLemmatizedStringBuilder.setLength(0);
     }
 
     private void incrementMentionsCount(String entityId) {
@@ -136,6 +156,14 @@ public class CorpusProcessor extends LineFileProcessor {
     }
 
     private void addAlias(String entityId, String alias) {
+        addAliasToSelectedAliasesList(entityId, alias, entitiesAliases);
+    }
+
+    private void addLemmatizedAlias(String entityId, String alias) {
+        addAliasToSelectedAliasesList(entityId, alias, entitiesLemmatizedAliases);
+    }
+
+    private void addAliasToSelectedAliasesList(String entityId, String alias, Map<String, Set<String>> entitiesAliases) {
         Set<String> aliases;
         if (entitiesAliases.containsKey(entityId)) {
             aliases = entitiesAliases.get(entityId);
@@ -143,6 +171,9 @@ public class CorpusProcessor extends LineFileProcessor {
             aliases = new HashSet<>();
         }
         aliases.add(alias);
+        if (alias.matches(SURNAME_AND_NAME_WITH_COMMA_AND_POLISH_SIGNS_PATTERN)) {
+            aliases.add(alias.split(",")[0]);
+        }
         entitiesAliases.put(entityId, aliases);
     }
 
@@ -159,7 +190,6 @@ public class CorpusProcessor extends LineFileProcessor {
 
     private void saveAliases() {
         log.info("saving aliases");
-        log.info(String.valueOf(entitiesMentions.size()));
         entitiesAliases.forEach((k, aliases) -> wikiItemRepository.findById(k).ifPresent(wikiItemEntity ->
                 aliases.forEach(alias -> {
                     if (PageType.REGULAR_ARTICLE.equals(wikiItemEntity.getPageType()) && alias.length() < 255) {
@@ -170,6 +200,20 @@ public class CorpusProcessor extends LineFileProcessor {
                     }
                 })));
         aliasesSaver.processRest();
+    }
+
+    private void saveLemmatizedAliases() {
+        log.info("saving lemmatized aliases");
+        entitiesLemmatizedAliases.forEach((k, aliases) -> wikiItemRepository.findById(k).ifPresent(wikiItemEntity ->
+                aliases.forEach(alias -> {
+                    if (PageType.REGULAR_ARTICLE.equals(wikiItemEntity.getPageType()) && alias.length() < 255) {
+                        AliasLemmatizedEntity aliasLemmatizedEntity = new AliasLemmatizedEntity();
+                        aliasLemmatizedEntity.setLabel(alias);
+                        aliasLemmatizedEntity.setTarget(wikiItemEntity);
+                        aliasesLemmatizedSaver.process(aliasLemmatizedEntity);
+                    }
+                })));
+        aliasesLemmatizedSaver.processRest();
     }
 
     private void saveArticlesLengthResults() {
