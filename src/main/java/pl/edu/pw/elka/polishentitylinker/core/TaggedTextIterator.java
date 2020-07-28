@@ -2,6 +2,7 @@ package pl.edu.pw.elka.polishentitylinker.core;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
 import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
 import pl.edu.pw.elka.polishentitylinker.utils.TsvLineParser;
@@ -56,21 +57,23 @@ public class TaggedTextIterator {
 
         loadedArticles.forEach((docId, article) -> {
             List<Integer> namedEntitiesIdxs = getNamedEntitiesIdxs(article);
-
             if (!namedEntitiesIdxs.isEmpty()) {
                 List<TokenizedWord> buffer = new ArrayList<>();
                 String lastId = null;
+                Integer lastIdx = -100;
 
                 for (Integer idx : namedEntitiesIdxs) {
                     TokenizedWord tokenizedWord = article.get(idx);
-                    if (!tokenizedWord.getEntityId().equals(lastId)) {
-                        if (lastId != null) {
-                            savePreviousAndClearBuffer(buffer, article);
-                        }
-                        lastId = tokenizedWord.getEntityId();
+                    boolean previousHasDifferentId = !tokenizedWord.getEntityId().equals(lastId);
+                    boolean previousWasFurtherThanOneWord = !idx.equals(lastIdx  +1);
+                    boolean newSpan = previousHasDifferentId || previousWasFurtherThanOneWord;
+                    if (newSpan) {
+                        savePreviousAndClearBuffer(buffer, article);
                         currentEntityStartIdx = idx;
                     }
                     buffer.add(tokenizedWord);
+                    lastId = tokenizedWord.getEntityId();
+                    lastIdx = idx;
                 }
                 savePreviousAndClearBuffer(buffer, article);
             }
@@ -85,12 +88,14 @@ public class TaggedTextIterator {
     }
 
     private void savePreviousAndClearBuffer(List<TokenizedWord> buffer, List<TokenizedWord> article) {
-        NamedEntity namedEntity = new NamedEntity();
-        List<TokenizedWord> entitySpan = new ArrayList<>(buffer);
-        namedEntity.setEntitySpan(entitySpan);
-        namedEntities.add(namedEntity);
-        namedEntity.setContext(getContext(article));
-        buffer.clear();
+        if(!buffer.isEmpty()) {
+            NamedEntity namedEntity = new NamedEntity();
+            List<TokenizedWord> entitySpan = new ArrayList<>(buffer);
+            namedEntity.setEntitySpan(entitySpan);
+            namedEntities.add(namedEntity);
+            namedEntity.setContext(getContext(article));
+            buffer.clear();
+        }
     }
 
     private boolean isNamedEntity(TokenizedWord tokenizedWord) {

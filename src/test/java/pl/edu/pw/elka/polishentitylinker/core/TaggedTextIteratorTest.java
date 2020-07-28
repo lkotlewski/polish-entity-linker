@@ -9,7 +9,7 @@ import static org.junit.Assert.assertNotNull;
 public class TaggedTextIteratorTest {
 
     private final TaggedTextIterator taggedTextProcessor = new TaggedTextIterator();
-    private final String path = "src/main/resources/final-filtered.tsv";
+    private final String path = "src/main/resources/final-mapped.tsv";
 
     @Before
     public void setUp() {
