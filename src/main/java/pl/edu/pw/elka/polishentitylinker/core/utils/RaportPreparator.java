@@ -5,7 +5,7 @@ import org.springframework.data.util.Pair;
 import pl.edu.pw.elka.polishentitylinker.core.model.result.DisambiguatorResults;
 import pl.edu.pw.elka.polishentitylinker.core.model.result.SearcherResults;
 import pl.edu.pw.elka.polishentitylinker.core.model.result.WholeSystemResults;
-import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
+import pl.edu.pw.elka.polishentitylinker.entity.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
 
 import java.io.IOException;

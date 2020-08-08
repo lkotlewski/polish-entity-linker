@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.elka.polishentitylinker.core.TaggedTextIterator;
-import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
+import pl.edu.pw.elka.polishentitylinker.entity.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
 import pl.edu.pw.elka.polishentitylinker.processing.config.TuningDatasetPreparatorConfig;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static pl.edu.pw.elka.polishentitylinker.utils.BertIntegrationUtils.prepareExampleForClassifier;
+import static pl.edu.pw.elka.polishentitylinker.integration.gcp.BertIntegrationUtils.prepareExampleForClassifier;
 import static pl.edu.pw.elka.polishentitylinker.utils.FileUtils.appendToFile;
 
 @Slf4j

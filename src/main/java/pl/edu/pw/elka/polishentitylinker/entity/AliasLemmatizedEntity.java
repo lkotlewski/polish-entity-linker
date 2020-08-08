@@ -1,4 +1,4 @@
-package pl.edu.pw.elka.polishentitylinker.entities;
+package pl.edu.pw.elka.polishentitylinker.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

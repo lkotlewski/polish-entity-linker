@@ -1,4 +1,4 @@
-package pl.edu.pw.elka.polishentitylinker.client;
+package pl.edu.pw.elka.polishentitylinker.integration.wikidata;
 
 
 import org.springframework.cloud.openfeign.FeignClient;

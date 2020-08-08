@@ -7,10 +7,10 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.elka.polishentitylinker.core.model.CandidateWithContextMatch;
-import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
+import pl.edu.pw.elka.polishentitylinker.entity.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
 import pl.edu.pw.elka.polishentitylinker.service.disambiguator.Disambiguator;
-import pl.edu.pw.elka.polishentitylinker.utils.BertIntegrationUtils;
+import pl.edu.pw.elka.polishentitylinker.integration.gcp.BertIntegrationUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;

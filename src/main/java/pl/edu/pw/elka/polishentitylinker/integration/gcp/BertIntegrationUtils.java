@@ -1,12 +1,19 @@
-package pl.edu.pw.elka.polishentitylinker.utils;
+package pl.edu.pw.elka.polishentitylinker.integration.gcp;
 
-import com.google.cloud.storage.*;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
+import pl.edu.pw.elka.polishentitylinker.entity.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
 import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
+import pl.edu.pw.elka.polishentitylinker.utils.TokenizedTextUtils;
+import pl.edu.pw.elka.polishentitylinker.utils.TsvLineParser;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,18 +24,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BertIntegrationUtils {
 
     private static final String LINE_PATTERN = "%s\t%d\t%s\t%s\t%s\t%s\t%b\n";
-    private static final String BEGINING_TO_IGNORE = "!-- ** DO EDYTORÓW ** NOTE TO EDITORS ** " +
-            "Temat tego artykułu w niektórych kwestiach jest kontrowersyjny i może prowadzić do sporów. " +
-            "The topic is controversial on some issues and can lead to disputes. Zanim zaczniesz wprowadzać zmiany w treści, najlepiej przedyskutuj to najpierw na stronie dyskusji. " +
-            "Before you make changes in the content it is best to discuss it first on the talk page. " +
-            "Proszę nie usuwać tego tekstu – jest to komentarz, który nie jest widoczny w podglądzie. " +
-            "Please do not remove this text – it’s a comment which is not visible in preview. --";
 
     public static boolean exists(String projectId, String bucketName, String gsFilepath) {
         return !listObjectsWithPrefix(projectId, bucketName, gsFilepath).isEmpty();
@@ -45,7 +45,6 @@ public class BertIntegrationUtils {
         return StreamSupport.stream(values.spliterator(), false)
                 .collect(Collectors.toList());
     }
-
 
     public static void downloadObject(
             String projectId, String bucketName, String objectName, Path destFilePath) {
@@ -64,9 +63,8 @@ public class BertIntegrationUtils {
         log.info("File " + filePath + " uploaded to bucket " + bucketName + " as " + objectName);
     }
 
-
     public static String prepareExampleForClassifier(Integer contextPageId, NamedEntity targetNamedEntity,
-                                                     WikiItemEntity candidateWikiItem, int articlePartSize, String articlesDirectory) {
+            WikiItemEntity candidateWikiItem, int articlePartSize, String articlesDirectory) {
         return prepareDatasetLine(
                 targetNamedEntity.toOriginalForm(),
                 contextPageId,
@@ -90,9 +88,8 @@ public class BertIntegrationUtils {
         );
     }
 
-
     private static String prepareDatasetLine(String originalForm, Integer contextArticleId, String targetWikiItemId,
-                                             String comparedWikiItemId, String context, String compared, boolean positiveExample) {
+            String comparedWikiItemId, String context, String compared, boolean positiveExample) {
         return String.format(LINE_PATTERN, originalForm, contextArticleId, targetWikiItemId, comparedWikiItemId,
                 context, compared, positiveExample);
     }

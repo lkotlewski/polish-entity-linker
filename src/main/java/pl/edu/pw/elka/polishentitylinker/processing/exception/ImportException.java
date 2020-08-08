@@ -1,4 +1,4 @@
-package pl.edu.pw.elka.polishentitylinker.exception;
+package pl.edu.pw.elka.polishentitylinker.processing.exception;
 
 
 public class ImportException extends RuntimeException {

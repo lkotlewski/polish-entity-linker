@@ -1,4 +1,4 @@
-package pl.edu.pw.elka.polishentitylinker.client.ex;
+package pl.edu.pw.elka.polishentitylinker.integration.wikidata.ex;
 
 public class SparqlQueryException extends RuntimeException {
 

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
+import pl.edu.pw.elka.polishentitylinker.entity.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.json.WikiItem;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
 

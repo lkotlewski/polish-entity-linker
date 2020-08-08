@@ -1,7 +1,7 @@
 package pl.edu.pw.elka.polishentitylinker.utils;
 
 import one.util.streamex.StreamEx;
-import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
+import pl.edu.pw.elka.polishentitylinker.entity.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.csv.PageType;
 
 import java.util.List;

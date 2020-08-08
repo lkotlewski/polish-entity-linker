@@ -1,8 +1,8 @@
 package pl.edu.pw.elka.polishentitylinker.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import pl.edu.pw.elka.polishentitylinker.entities.RedirectPageEntity;
-import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
+import pl.edu.pw.elka.polishentitylinker.entity.RedirectPageEntity;
+import pl.edu.pw.elka.polishentitylinker.entity.WikiItemEntity;
 
 import java.util.List;
 

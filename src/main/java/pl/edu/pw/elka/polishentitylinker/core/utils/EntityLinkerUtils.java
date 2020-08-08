@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import pl.edu.pw.elka.polishentitylinker.core.model.CandidateWithContextMatch;
 import pl.edu.pw.elka.polishentitylinker.core.model.CandidatesForMentions;
-import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
+import pl.edu.pw.elka.polishentitylinker.entity.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
 
 import java.io.IOException;

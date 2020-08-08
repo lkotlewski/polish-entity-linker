@@ -12,7 +12,7 @@ import pl.edu.pw.elka.polishentitylinker.core.model.result.ResultForConfiguratio
 import pl.edu.pw.elka.polishentitylinker.core.model.result.SearcherResults;
 import pl.edu.pw.elka.polishentitylinker.core.model.result.WholeSystemResults;
 import pl.edu.pw.elka.polishentitylinker.core.utils.EntityLinkerUtils;
-import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
+import pl.edu.pw.elka.polishentitylinker.entity.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
 import pl.edu.pw.elka.polishentitylinker.service.disambiguator.bert.BertDisambiguator;
 import pl.edu.pw.elka.polishentitylinker.service.disambiguator.bert.BertDisambiguatorConfig;

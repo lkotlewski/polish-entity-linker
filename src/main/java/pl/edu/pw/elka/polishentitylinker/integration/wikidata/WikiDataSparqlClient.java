@@ -1,11 +1,11 @@
-package pl.edu.pw.elka.polishentitylinker.client;
+package pl.edu.pw.elka.polishentitylinker.integration.wikidata;
 
 import feign.RetryableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import pl.edu.pw.elka.polishentitylinker.client.ex.SparqlQueryException;
+import pl.edu.pw.elka.polishentitylinker.integration.wikidata.ex.SparqlQueryException;
 
 import java.io.IOException;
 import java.nio.file.Files;

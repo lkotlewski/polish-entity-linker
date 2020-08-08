@@ -2,7 +2,7 @@ package pl.edu.pw.elka.polishentitylinker.core.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
+import pl.edu.pw.elka.polishentitylinker.entity.WikiItemEntity;
 
 @Data
 @AllArgsConstructor

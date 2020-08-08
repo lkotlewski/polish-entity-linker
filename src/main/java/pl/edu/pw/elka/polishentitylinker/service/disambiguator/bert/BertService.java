@@ -2,7 +2,7 @@ package pl.edu.pw.elka.polishentitylinker.service.disambiguator.bert;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.edu.pw.elka.polishentitylinker.utils.BertIntegrationUtils;
+import pl.edu.pw.elka.polishentitylinker.integration.gcp.BertIntegrationUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
