@@ -2,7 +2,6 @@ package pl.edu.pw.elka.polishentitylinker.core;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.util.Pair;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
 import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
 import pl.edu.pw.elka.polishentitylinker.utils.TsvLineParser;

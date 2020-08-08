@@ -2,7 +2,6 @@ package pl.edu.pw.elka.polishentitylinker.service.disambiguator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Primary
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -22,7 +20,7 @@ public class NaiveDisambiguator implements Disambiguator {
     public WikiItemEntity choose(NamedEntity namedEntity, List<WikiItemEntity> candidates) {
         return candidates
                 .stream()
-                .reduce((a, b) -> getMentionsCount(a) > getMentionsCount(b) ? a : b)
+                .reduce((a, b) -> a.getNonNullMentionsCount() > b.getNonNullMentionsCount() ? a : b)
                 .orElse(null);
     }
 
@@ -38,9 +36,5 @@ public class NaiveDisambiguator implements Disambiguator {
             log.info("{}/{} entities disambigutated", processedSize.incrementAndGet(), candidatesForMentionsSize);
         });
         return results;
-    }
-
-    private int getMentionsCount(WikiItemEntity wikiItemEntity) {
-        return wikiItemEntity.getMentionsCount() == null ? 0 : wikiItemEntity.getMentionsCount();
     }
 }

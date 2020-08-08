@@ -1,7 +1,6 @@
 package pl.edu.pw.elka.polishentitylinker.utils;
 
 import pl.edu.pw.elka.polishentitylinker.model.DividedArticle;
-import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
 
 import java.io.IOException;
 import java.nio.file.Files;

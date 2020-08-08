@@ -1,4 +1,4 @@
-package pl.edu.pw.elka.polishentitylinker.core;
+package pl.edu.pw.elka.polishentitylinker.core.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -20,7 +20,7 @@ import java.util.stream.IntStream;
 @AllArgsConstructor
 public class CandidatesForMentions {
 
-    CandidatesForMentions(List<Pair<NamedEntity, List<WikiItemEntity>>> candidatesForMentions) {
+    public CandidatesForMentions(List<Pair<NamedEntity, List<WikiItemEntity>>> candidatesForMentions) {
         targetNamedEntities = candidatesForMentions.stream().map(Pair::getFirst).collect(Collectors.toList());
         candidates = candidatesForMentions.stream().map(Pair::getSecond).collect(Collectors.toList());
     }

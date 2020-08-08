@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.elka.polishentitylinker.core.EntityLinker;
+import pl.edu.pw.elka.polishentitylinker.core.FinalResultsEvaluator;
 import pl.edu.pw.elka.polishentitylinker.processing.impl.*;
 
 import javax.annotation.PostConstruct;
@@ -26,6 +27,7 @@ public class ProgramRunner {
     private final TestTrainSetsPreparator testTrainSetsPreparator;
     private final CategoriesProcessor categoriesProcessor;
     private final TuningDatasetPreparator tuningDatasetPreparator;
+    private final FinalResultsEvaluator finalResultsEvaluator;
 
 
     private Map<ProgramOption, Runnable> actions;
@@ -48,6 +50,7 @@ public class ProgramRunner {
         actions.put(ProgramOption.PREPARE_TUNE_DATASET, tuningDatasetPreparator::prepareDataset);
         actions.put(ProgramOption.PROCESS_CATEGORIES, categoriesProcessor::processCategoriesStructure);
         actions.put(ProgramOption.LINK_ENTITIES, entityLinker::linkEntities);
+        actions.put(ProgramOption.EVALUATE_RESULTS, finalResultsEvaluator::evaluateResults);
     }
 
     public void run() {

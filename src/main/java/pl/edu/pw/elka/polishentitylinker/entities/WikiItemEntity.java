@@ -43,4 +43,9 @@ public class WikiItemEntity {
     private Integer mentionsCount;
 
     private Integer articleLength;
+
+    @JsonIgnore
+    public int getNonNullMentionsCount() {
+        return this.getMentionsCount() == null ? 0 : this.getMentionsCount();
+    }
 }

@@ -6,6 +6,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import pl.edu.pw.elka.polishentitylinker.core.model.CandidateWithContextMatch;
 import pl.edu.pw.elka.polishentitylinker.entities.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.model.NamedEntity;
 import pl.edu.pw.elka.polishentitylinker.service.disambiguator.Disambiguator;
@@ -25,6 +26,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static pl.edu.pw.elka.polishentitylinker.core.utils.EntityLinkerUtils.mergeCandidatesAndContextMatches;
+import static pl.edu.pw.elka.polishentitylinker.core.utils.EntityLinkerUtils.readContextMatches;
+
+@Primary
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -42,7 +47,6 @@ public class BertDisambiguator implements Disambiguator {
 
     @Override
     public List<WikiItemEntity> chooseAll(List<Pair<NamedEntity, List<WikiItemEntity>>> candidatesForMentions) {
-        List<WikiItemEntity> resultList = new ArrayList<>();
         try {
             Path predictionsPath;
             if (config.isUseReadyPredictions()) {
@@ -54,39 +58,46 @@ public class BertDisambiguator implements Disambiguator {
                         getGsPath(config.getGsInputDir(), fileName), uploadPath);
                 predictionsPath = waitForResultsAndDownloadWhereReady(fileName);
             }
-            List<Double> contextMatches = Files.lines(predictionsPath)
-                    .map(this::getFirstNumberInTsvLine)
-                    .collect(Collectors.toList());
-            AtomicInteger currentIdx = new AtomicInteger(0);
-            candidatesForMentions.forEach(pair -> {
-                List<WikiItemEntity> candidates = pair.getSecond();
-                int fromIndex = currentIdx.get();
-                int toIndex = currentIdx.addAndGet(candidates.size());
-                List<Double> candidatesMatches = contextMatches.subList(fromIndex, toIndex);
-                int idxOfBestCandidate;
-                if (config.isUsePopularity()) {
-                    int allCandidatesMentionsCount = candidates.stream().mapToInt(this::getMentionsCount).sum();
-                    List<Double> candidatesProbabilities = candidates.stream()
-                            .mapToDouble(wikiItemEntity -> getMentionsCount(wikiItemEntity) / (double) allCandidatesMentionsCount)
-                            .boxed()
-                            .collect(Collectors.toList());
-
-                    List<Double> candidatesRatings = IntStream.range(0, candidatesMatches.size())
-                            .mapToDouble(i -> candidatesMatches.get(i) + config.getPopularityRate() * candidatesProbabilities.get(i))
-//                            .mapToDouble(i -> config.getPopularityRate() * getScalledProbability(candidatesProbabilities.get(i)) + getScalledProbability(candidatesMatches.get(i)))
-                            .boxed()
-                            .collect(Collectors.toList());
-                    idxOfBestCandidate = getMaxIdxFromList(candidatesRatings);
-                } else {
-                    idxOfBestCandidate = getMaxIdxFromList(candidatesMatches);
-                }
-                resultList.add(idxOfBestCandidate == -1 ? null : candidates.get(idxOfBestCandidate));
-            });
+            List<Double> contextMatches = readContextMatches(predictionsPath);
+            List<Pair<NamedEntity, List<CandidateWithContextMatch>>> candidatesForMentionsWithMatches =
+                    mergeCandidatesAndContextMatches(candidatesForMentions, contextMatches);
+            return prepareResultList(candidatesForMentionsWithMatches);
         } catch (IOException e) {
             log.error(e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    public List<WikiItemEntity> prepareResultList(List<Pair<NamedEntity, List<CandidateWithContextMatch>>> candidatesForMentionsWithMatches) {
+        List<WikiItemEntity> resultList = new ArrayList<>();
+        candidatesForMentionsWithMatches.forEach(pair -> {
+            List<CandidateWithContextMatch> candidates = pair.getSecond();
+            int idxOfBestCandidate;
+            if (config.isUsePopularity()) {
+                idxOfBestCandidate = getMaxIdxFromList(getRatingsWithPopularity(candidates));
+            } else {
+                idxOfBestCandidate = getMaxIdxFromList(getStrictMatchesFromPredictions(candidates));
+            }
+            resultList.add(idxOfBestCandidate == -1 ? null : candidates.get(idxOfBestCandidate).getWikiItemEntity());
+        });
         return resultList;
+    }
+
+    private List<Double> getRatingsWithPopularity(List<CandidateWithContextMatch> candidates) {
+        int allCandidatesMentionsCount = candidates.stream().mapToInt(candidate -> getMentionsCount(candidate.getWikiItemEntity())).sum();
+        List<Double> candidatesProbabilities = candidates.stream()
+                .mapToDouble(candidate -> getMentionsCount(candidate.getWikiItemEntity()) / (double) allCandidatesMentionsCount)
+                .boxed()
+                .collect(Collectors.toList());
+
+        return IntStream.range(0, candidates.size())
+                .mapToDouble(i -> candidates.get(i).getContextMatch() + config.getPopularityRate() * candidatesProbabilities.get(i))
+                .boxed()
+                .collect(Collectors.toList());
+    }
+
+    private List<Double> getStrictMatchesFromPredictions(List<CandidateWithContextMatch> candidates) {
+        return candidates.stream().map(CandidateWithContextMatch::getContextMatch).collect(Collectors.toList());
     }
 
     private Path prepareFileForBert(List<Pair<NamedEntity, List<WikiItemEntity>>> candidatesForMentions) throws IOException {
@@ -132,7 +143,7 @@ public class BertDisambiguator implements Disambiguator {
                 log.error("File processed with error");
                 throw new RuntimeException("File processed with error");
             } else {
-                log.info("Waiting for results ...");
+                log.info("Waiting for result ...");
                 try {
                     TimeUnit.SECONDS.sleep(1);
                 } catch (InterruptedException e) {
@@ -151,10 +162,6 @@ public class BertDisambiguator implements Disambiguator {
         return String.format("%s_result.tsv", FilenameUtils.removeExtension(filename));
     }
 
-    private Double getFirstNumberInTsvLine(String line) {
-        return Double.valueOf(line.split("\\t")[0]);
-    }
-
     private int getMaxIdxFromList(List<Double> values) {
         if (values == null || values.isEmpty()) {
             return -1;
@@ -162,14 +169,6 @@ public class BertDisambiguator implements Disambiguator {
         Double maxVal = values.stream().reduce(Double::max).get();
         return values.indexOf(maxVal);
     }
-
-    private Double getScalledProbability(Double probabilityValue) {
-        if (probabilityValue == 1D) {
-            return Double.MAX_VALUE;
-        }
-        return 1 / (1 - probabilityValue);
-    }
-
 
     private Integer getMentionsCount(WikiItemEntity wikiItem) {
         return Optional.ofNullable(wikiItem.getMentionsCount()).orElse(0);
