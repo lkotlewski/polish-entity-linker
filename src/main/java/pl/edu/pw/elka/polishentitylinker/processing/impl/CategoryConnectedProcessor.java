@@ -6,7 +6,7 @@ import pl.edu.pw.elka.polishentitylinker.entity.WikiItemEntity;
 import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
 import pl.edu.pw.elka.polishentitylinker.processing.config.BatchProcessingConfig;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
-import pl.edu.pw.elka.polishentitylinker.utils.BufferedBatchProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.BufferedBatchProcessor;
 
 import java.nio.file.Path;
 import java.util.Optional;

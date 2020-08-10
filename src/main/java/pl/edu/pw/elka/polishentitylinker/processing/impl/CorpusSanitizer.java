@@ -7,7 +7,7 @@ import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
 import pl.edu.pw.elka.polishentitylinker.processing.LineFileProcessor;
 import pl.edu.pw.elka.polishentitylinker.processing.config.BatchProcessingConfig;
 import pl.edu.pw.elka.polishentitylinker.processing.config.CorpusSanitizerConfig;
-import pl.edu.pw.elka.polishentitylinker.utils.BufferedBatchProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.BufferedBatchProcessor;
 import pl.edu.pw.elka.polishentitylinker.utils.TsvLineParser;
 
 import java.io.IOException;

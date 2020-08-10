@@ -15,7 +15,7 @@ import pl.edu.pw.elka.polishentitylinker.processing.config.CorpusProcessorConfig
 import pl.edu.pw.elka.polishentitylinker.repository.AliasLemmatizedRepository;
 import pl.edu.pw.elka.polishentitylinker.repository.AliasRepository;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
-import pl.edu.pw.elka.polishentitylinker.utils.BufferedBatchProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.BufferedBatchProcessor;
 import pl.edu.pw.elka.polishentitylinker.utils.TsvLineParser;
 
 import java.util.HashMap;

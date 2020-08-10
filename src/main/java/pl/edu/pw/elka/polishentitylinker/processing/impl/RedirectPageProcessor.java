@@ -11,7 +11,7 @@ import pl.edu.pw.elka.polishentitylinker.processing.config.BatchProcessingConfig
 import pl.edu.pw.elka.polishentitylinker.processing.config.ItemsParserConfig;
 import pl.edu.pw.elka.polishentitylinker.repository.RedirectPageRepository;
 import pl.edu.pw.elka.polishentitylinker.repository.WikiItemRepository;
-import pl.edu.pw.elka.polishentitylinker.utils.BufferedBatchProcessor;
+import pl.edu.pw.elka.polishentitylinker.processing.BufferedBatchProcessor;
 
 @Slf4j
 @Component
