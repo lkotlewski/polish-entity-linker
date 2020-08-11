@@ -48,47 +48,45 @@ public class FinalResultsEvaluator {
         List<NamedEntity> referenceEntities = candidatesForMentions.stream().map(Pair::getFirst).collect(Collectors.toList());
         List<ResultForConfiguration> resultsForConfigurations = new ArrayList<>();
 
-        popularityRates.forEach(popularityRate -> {
-            candidatesLimits.stream().forEach(limit -> {
-                log.info("\n\n###########################");
-                log.info("candidates limit: {}, popularity rate: {}", limit, popularityRate);
-                log.info("###########################");
-                BertDisambiguator bertDisambiguator = getConfiguredDisambiguator(popularityRate);
+        popularityRates.forEach(popularityRate -> candidatesLimits.stream().forEach(limit -> {
+            log.info("\n\n###########################");
+            log.info("candidates limit: {}, popularity rate: {}", limit, popularityRate);
+            log.info("###########################");
+            BertDisambiguator bertDisambiguator = getConfiguredDisambiguator(popularityRate);
 
-                List<Pair<NamedEntity, List<WikiItemEntity>>> copiedCandidates = withCandidatesDeepCopy(candidatesForMentions);
-                List<Pair<NamedEntity, List<WikiItemEntity>>> copiedForEvaluation = withCandidatesDeepCopy(candidatesForMentions);
-                List<Double> copiedMatches = deepCopyList(contextMatches);
+            List<Pair<NamedEntity, List<WikiItemEntity>>> copiedCandidates = withCandidatesDeepCopy(candidatesForMentions);
+            List<Pair<NamedEntity, List<WikiItemEntity>>> copiedForEvaluation = withCandidatesDeepCopy(candidatesForMentions);
+            List<Double> copiedMatches = deepCopyList(contextMatches);
 
-                clearCandidatesContainingNoGood(copiedCandidates);
-                int allCandidatesSum = copiedCandidates.stream().mapToInt(c -> c.getSecond().size()).sum();
-                if(allCandidatesSum != contextMatches.size()) {
-                    throw new IllegalStateException("Predicitions does not match to candidates");
-                }
-                List<Pair<NamedEntity, List<CandidateWithContextMatch>>> merged =
-                        mergeCandidatesAndContextMatches(copiedCandidates, copiedMatches);
-                limitExtendedSearchResults(merged, limit);
+            clearCandidatesContainingNoGood(copiedCandidates);
+            int allCandidatesSum = copiedCandidates.stream().mapToInt(c -> c.getSecond().size()).sum();
+            if(allCandidatesSum != contextMatches.size()) {
+                throw new IllegalStateException("Predicitions does not match to candidates");
+            }
+            List<Pair<NamedEntity, List<CandidateWithContextMatch>>> merged =
+                    mergeCandidatesAndContextMatches(copiedCandidates, copiedMatches);
+            limitExtendedSearchResults(merged, limit);
 
-                List<WikiItemEntity> chosenEntities = bertDisambiguator.prepareResultList(merged);
-                if (chosenEntities.size() != referenceEntities.size()) {
-                    throw new IllegalStateException("Result list size is different from size of entities to disambiguate list");
-                }
+            List<WikiItemEntity> chosenEntities = bertDisambiguator.prepareResultList(merged);
+            if (chosenEntities.size() != referenceEntities.size()) {
+                throw new IllegalStateException("Result list size is different from size of entities to disambiguate list");
+            }
 
-                EntityLinkerUtils.limitSearchResults(copiedForEvaluation, limit);
-                SearcherResults searcherResults = evaluateSearcherResultsParams(copiedForEvaluation);
-                DisambiguatorResults disambiguatorResults = evaluateDisambiguatorParams(chosenEntities, copiedForEvaluation);
-                WholeSystemResults wholeSystemResults = evaluateOverallParams(chosenEntities, referenceEntities);
-                ResultForConfiguration result = ResultForConfiguration.builder()
-                        .popularityRate(popularityRate)
-                        .candidatesLimit(limit)
-                        .searcherResults(searcherResults)
-                        .disambiguatorResults(disambiguatorResults)
-                        .wholeSystemResults(wholeSystemResults)
-                        .build();
-                resultsForConfigurations.add(result);
-            });
-        });
+            EntityLinkerUtils.limitSearchResults(copiedForEvaluation, limit);
+            SearcherResults searcherResults = evaluateSearcherResultsParams(copiedForEvaluation);
+            DisambiguatorResults disambiguatorResults = evaluateDisambiguatorParams(chosenEntities, copiedForEvaluation);
+            WholeSystemResults wholeSystemResults = evaluateOverallParams(chosenEntities, referenceEntities);
+            ResultForConfiguration result = ResultForConfiguration.builder()
+                    .popularityRate(popularityRate)
+                    .candidatesLimit(limit)
+                    .searcherResults(searcherResults)
+                    .disambiguatorResults(disambiguatorResults)
+                    .wholeSystemResults(wholeSystemResults)
+                    .build();
+            resultsForConfigurations.add(result);
+        }));
 
-        OptionalDouble max = resultsForConfigurations.stream().mapToDouble((a) -> a.getWholeSystemResults().getAccuracy()).max();
+        OptionalDouble max = resultsForConfigurations.stream().mapToDouble(a -> a.getWholeSystemResults().getAccuracy()).max();
         log.info("###########################\n\n");
         log.info(String.format("Best accuracy: %.4f", max.getAsDouble()));
         saveToFile(Paths.get(config.getEvaluationsFilepath()), resultsForConfigurations, objectMapper);

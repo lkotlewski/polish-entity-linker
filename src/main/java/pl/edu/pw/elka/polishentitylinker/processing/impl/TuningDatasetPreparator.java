@@ -154,17 +154,18 @@ public class TuningDatasetPreparator {
 
     private void logDistributionsStats() {
         log.info("Train positive examples stats:");
-        trainPositiveExamplesDistribution.forEach((k, v) -> log.info("{} : {}", k, v));
+        String logPattern = "{} : {}";
+        trainPositiveExamplesDistribution.forEach((k, v) -> log.info(logPattern, k, v));
         log.info("Train negative examples stats:");
-        trainNegativeExamplesDistribution.forEach((k, v) -> log.info("{} : {}", k, v));
+        trainNegativeExamplesDistribution.forEach((k, v) -> log.info(logPattern, k, v));
         log.info("Dev positive examples stats:");
-        devPositiveExamplesDistribution.forEach((k, v) -> log.info("{} : {}", k, v));
+        devPositiveExamplesDistribution.forEach((k, v) -> log.info(logPattern, k, v));
         log.info("Dev negative examples stats:");
-        devNegativeExamplesDistribution.forEach((k, v) -> log.info("{} : {}", k, v));
+        devNegativeExamplesDistribution.forEach((k, v) -> log.info(logPattern, k, v));
         log.info("Test positive examples stats:");
-        testPositiveExamplesDistribution.forEach((k, v) -> log.info("{} : {}", k, v));
+        testPositiveExamplesDistribution.forEach((k, v) -> log.info(logPattern, k, v));
         log.info("Test negative examples stats:");
-        testNegativeExamplesDistribution.forEach((k, v) -> log.info("{} : {}", k, v));
+        testNegativeExamplesDistribution.forEach((k, v) -> log.info(logPattern, k, v));
     }
 
     private int getSumExamplesCount() {

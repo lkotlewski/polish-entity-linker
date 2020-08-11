@@ -1,5 +1,7 @@
 package pl.edu.pw.elka.polishentitylinker.core.utils;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import pl.edu.pw.elka.polishentitylinker.core.model.result.DisambiguatorResults;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RaportPreparator {
 
     private static final String LOG_PATTERN = "%s: %s, %s, %s";
@@ -149,7 +152,7 @@ public class RaportPreparator {
 
     public static <T> List<T> deepCopyList(List<T> listToCopy) {
         List<T> copy = new ArrayList<>();
-        listToCopy.forEach(item -> copy.add(item));
+        listToCopy.forEach(copy::add);
         return copy;
     }
 

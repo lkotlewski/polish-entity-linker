@@ -32,7 +32,7 @@ public class DirectoryCorpusSanitizer {
 
                     });
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
     }
 }

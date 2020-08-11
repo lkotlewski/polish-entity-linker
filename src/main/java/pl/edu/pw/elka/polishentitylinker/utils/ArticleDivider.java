@@ -1,5 +1,7 @@
 package pl.edu.pw.elka.polishentitylinker.utils;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import pl.edu.pw.elka.polishentitylinker.model.DividedArticle;
 
 import java.io.IOException;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ArticleDivider {
 
     public static DividedArticle divideArticle(Path path, float trainPart) throws IOException {

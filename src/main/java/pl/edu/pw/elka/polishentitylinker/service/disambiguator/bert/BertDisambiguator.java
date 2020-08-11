@@ -101,17 +101,17 @@ public class BertDisambiguator implements Disambiguator {
     }
 
     private Path prepareFileForBert(List<Pair<NamedEntity, List<WikiItemEntity>>> candidatesForMentions) throws IOException {
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuilder = new StringBuilder();
         int candidatesForMentionsSize = candidatesForMentions.size();
         AtomicInteger processedSize = new AtomicInteger(0);
         candidatesForMentions.forEach(pair -> {
             NamedEntity namedEntity = pair.getFirst();
             List<WikiItemEntity> candidates = pair.getSecond();
             if (candidates.size() == 1) {
-                stringBuffer.append(BertIntegrationUtils.prepeareEmptyExample());
+                stringBuilder.append(BertIntegrationUtils.prepeareEmptyExample());
             } else {
                 candidates.forEach(candidate ->
-                        stringBuffer.append(BertIntegrationUtils.prepareExampleForClassifier(namedEntity.getPageId(),
+                        stringBuilder.append(BertIntegrationUtils.prepareExampleForClassifier(namedEntity.getPageId(),
                                 namedEntity, candidate, config.getArticlePartSize(), config.getArticlesDirectory()))
                 );
             }
@@ -119,7 +119,7 @@ public class BertDisambiguator implements Disambiguator {
         });
 
         Path uploadPath = Paths.get(config.getLocalUploadDir(), String.format("candidates_%s.tsv", LocalDateTime.now().format(formatter)));
-        Files.write(uploadPath, stringBuffer.toString().getBytes());
+        Files.write(uploadPath, stringBuilder.toString().getBytes());
         log.info("File to upload created");
         return uploadPath;
     }

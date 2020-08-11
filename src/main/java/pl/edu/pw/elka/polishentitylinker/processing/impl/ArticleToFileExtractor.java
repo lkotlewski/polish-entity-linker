@@ -18,11 +18,12 @@ import java.nio.file.Paths;
 @RequiredArgsConstructor
 public class ArticleToFileExtractor extends LineFileProcessor {
 
-    private final String FILENAME_PATTERN = "%d.tsv";
+    private static final String FILENAME_PATTERN = "%d.tsv";
 
     private final ArticleToFileExtractorConfig config;
 
-    private StringBuilder stringBuilder = new StringBuilder();
+    private final StringBuilder stringBuilder = new StringBuilder();
+
     private Integer lastDocId;
 
     @Override

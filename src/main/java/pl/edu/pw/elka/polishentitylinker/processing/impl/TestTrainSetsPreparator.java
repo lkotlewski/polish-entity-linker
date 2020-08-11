@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TestTrainSetsPreparator {
 
-    private final String FILENAME_PATTERN = "%d.tsv";
+    private static final String FILENAME_PATTERN = "%d.tsv";
 
     private final WikiItemRepository wikiItemRepository;
     private final TestTrainPreparatorConfig config;

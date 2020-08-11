@@ -1,11 +1,14 @@
 package pl.edu.pw.elka.polishentitylinker.utils;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedExtendedWord;
 import pl.edu.pw.elka.polishentitylinker.model.tsv.TokenizedWord;
 
 import java.util.Arrays;
 import java.util.List;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TsvLineParser {
 
     public static TokenizedWord parseTokenizedWord(String line) {
@@ -18,7 +21,7 @@ public class TsvLineParser {
                     .linkTitle(parts.get(3))
                     .entityId(parts.get(4))
                     .build();
-        } else if(parts.size() == 7) {
+        } else if (parts.size() == 7) {
             return TokenizedExtendedWord.extendedBuilder()
                     .docId(Integer.parseInt(parts.get(0)))
                     .token(parts.get(1))
@@ -35,7 +38,7 @@ public class TsvLineParser {
     private static String getLemma(List<String> parts) {
         String lemma = parts.get(2);
         List<String> lemmaParts = Arrays.asList(lemma.split(":"));
-        if(lemmaParts.isEmpty()) {
+        if (lemmaParts.isEmpty()) {
             return "";
         }
         return lemmaParts.get(0);

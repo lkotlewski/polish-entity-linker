@@ -76,8 +76,6 @@ public class EntityLinker {
         } else {
             evaluateSearcherResultsParams(candidatesForMentions);
             clearCandidatesContainingNoGood(candidatesForMentions);
-            int allCandidatesSum = candidatesForMentions.stream().mapToInt(c -> c.getSecond().size()).sum();
-            int al = 0;
         }
     }
 
