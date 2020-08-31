@@ -2,6 +2,7 @@ package pl.edu.pw.elka.polishentitylinker.service.disambiguator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.elka.polishentitylinker.entity.WikiItemEntity;

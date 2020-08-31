@@ -18,13 +18,18 @@ import java.nio.file.Paths;
 @RequiredArgsConstructor
 public class ArticleToFileExtractor extends LineFileProcessor {
 
-    private static final String FILENAME_PATTERN = "%d.tsv";
+    private final String FILENAME_PATTERN = "%d.tsv";
+    private static final String REF_TOKEN = "ref";
+    private static final String SLASH = "/";
 
     private final ArticleToFileExtractorConfig config;
 
     private final StringBuilder stringBuilder = new StringBuilder();
 
     private Integer lastDocId;
+    private boolean processingRef = false;
+    private boolean lastSlash = false;
+    private boolean refEnd = false;
 
     @Override
     public void processFile() {
@@ -33,6 +38,7 @@ public class ArticleToFileExtractor extends LineFileProcessor {
 
     @Override
     protected void processLine(String line) {
+        refEnd = false;
         TokenizedWord tokenizedWord = TsvLineParser.parseTokenizedWord(line);
         if (tokenizedWord != null) {
             Integer docId = tokenizedWord.getDocId();
@@ -41,9 +47,29 @@ public class ArticleToFileExtractor extends LineFileProcessor {
                 stringBuilder.setLength(0);
                 log.info("processing {}", docId);
                 lastDocId = docId;
+                processingRef = false;
+            }
+
+            if (REF_TOKEN.equals(tokenizedWord.getToken())) {
+                if (lastSlash) {
+                    refEnd = true;
+                } else {
+                    processingRef = true;
+                }
+                lastSlash = false;
+            } else if (SLASH.equals(tokenizedWord.getToken())) {
+                if (processingRef) {
+                    processingRef = false;
+                    lastSlash = true;
+                    refEnd = true;
+                }
+            } else {
+                lastSlash = false;
             }
         }
-        stringBuilder.append(line).append("\n");
+        if (!processingRef && !refEnd) {
+            stringBuilder.append(line).append("\n");
+        }
     }
 
     private void savePreviousArticleToFile() {
